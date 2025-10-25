@@ -1,6 +1,6 @@
 // src/services/MasterDataService.ts - Service untuk mengambil data dari Node.js API
 
-import { ViewBarang } from '../types/data';
+import { ViewBarang, ViewPengadaan, ViewPenerimaan, ViewPenjualan } from '../types/data';
 import { Satuan } from '../types/db';
 import { Vendor } from '../types/db';
 
@@ -12,7 +12,6 @@ const API_BASE_URL = 'http://localhost:8000/api/v1';
  * Mengambil semua data barang dari API Node.js/Express.
  */
 export async function fetchBarangData(): Promise<ViewBarang[]> {
-  try {
     const response = await fetch(`${API_BASE_URL}/barang`);
     
     if (!response.ok) {
@@ -27,15 +26,9 @@ export async function fetchBarangData(): Promise<ViewBarang[]> {
     }
     return [];
 
-  } catch (error) {
-    console.error("API Error [Barang]: Pastikan Node.js API server berjalan.", error);
-    // Melemparkan error untuk ditangani oleh komponen React
-    throw error;
   }
-}
 
 export async function fetchSatuanData(): Promise<Satuan[]> {
-  try {
     const response = await fetch(`${API_BASE_URL}/satuan`);
     
     if (!response.ok) {
@@ -56,21 +49,10 @@ export async function fetchSatuanData(): Promise<Satuan[]> {
       }));
       return normalizedData as Satuan[];
     }
-    
     throw new Error("Format respons API Satuan tidak valid. Properti 'data' (array) tidak ditemukan.");
-
-  } catch (error) {
-    console.error("API Error [Satuan]: Gagal memproses respons.", error);
-    if (error instanceof Error) {
-        throw new Error(`[Response Error] ${error.message}`);
-    } else {
-        throw new Error("Gagal mengambil atau memproses data Satuan dari server.");
-    }
-  }
-}
+  } 
 
 export async function fetchVendorData(): Promise<Vendor[]> {
-  try {
     const response = await fetch(`${API_BASE_URL}/vendor`);
     
     if (!response.ok) {
@@ -93,13 +75,53 @@ export async function fetchVendorData(): Promise<Vendor[]> {
     }
     
     throw new Error("Format respons API Vendor tidak valid. Properti 'data' (array) tidak ditemukan.");
+}
 
-  } catch (error) {
-    console.error("API Error [Vendor]: Gagal memproses respons.", error);
-    if (error instanceof Error) {
-        throw new Error(`[Response Error] ${error.message}`);
-    } else {
-        throw new Error("Gagal mengambil atau memproses data Vendor dari server.");
+export async function fetchPengadaanData(): Promise<ViewPengadaan[]> {
+    const response = await fetch(`${API_BASE_URL}/pengadaan`);
+    
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.message || `Gagal mengambil data: HTTP Status ${response.status}`);
     }
+    
+     const result = await response.json();
+    // Asumsikan API Node.js mengembalikan format { status: 'success', data: [...] }
+    if (result.data) {
+        return result.data as ViewPengadaan[];
+    }
+    return [];
+
   }
+
+export async function fetchPenerimaanData(): Promise<ViewPenerimaan[]> {
+    const response = await fetch(`${API_BASE_URL}/penerimaan`);
+    
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.message || `Gagal mengambil data: HTTP Status ${response.status}`);
+    }
+    
+     const result = await response.json();
+    // Asumsikan API Node.js mengembalikan format { status: 'success', data: [...] }
+    if (result.data) {
+        return result.data as ViewPenerimaan[];
+    }
+    return [];
+}
+
+export async function fetchPenjualanData(): Promise<ViewPenjualan[]> {
+    const response = await fetch(`${API_BASE_URL}/penjualan`);
+    
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.message || `Gagal mengambil data: HTTP Status ${response.status}`);
+    }
+    
+     const result = await response.json();
+    // Asumsikan API Node.js mengembalikan format { status: 'success', data: [...] }
+    if (result.data) {
+        return result.data as ViewPenjualan[];
+    }
+    return [];
 }

@@ -15,12 +15,16 @@ import NotFound from "./pages/OtherPage/NotFound";
 import BarangPage from "./pages/master/Barang";
 import SatuanPage from "./pages/master/Satuan";
 import VendorPage from "./pages/master/Vendor";
+import PengadaanPage from "./pages/Penjualan/Pengadaan";
+import PenerimaanPage from "./pages/Penjualan/penerimaan";
+import PenjualanPage from "./pages/Penjualan/Penjualan";
 import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+
 
 export default function App() {
   return (
@@ -38,9 +42,9 @@ export default function App() {
             <Route path="/master/user" element={<Blank />} />
 
             {/* Tambahkan rute untuk Transaksi (Ganti <Blank /> dengan komponen Anda) */}
-            <Route path="/transaksi/pengadaan" element={<Blank />} />
-            <Route path="/transaksi/penerimaan" element={<Blank />} />
-            <Route path="/transaksi/penjualan" element={<Blank />} />
+            <Route path="/pengadaan" element={<PengadaanPage />} />
+            <Route path="/penerimaan" element={<PenerimaanPage />} />
+            <Route path="/penjualan" element={<PenjualanPage />} />
             
             {/* Others Page */}
             {/* <Route path="/profile" element={<UserProfiles />} />

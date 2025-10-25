@@ -28,7 +28,7 @@ app.use(express.json()); // Untuk parse request body JSON
 // --- 2. ENDPOINT API UNTUK DATA BARANG ---
 app.get('/api/v1/barang', async (req, res) => {
     let connection;
-    try {
+    
         connection = await mysql.createConnection(dbConfig);
         
         // Mengambil data dari VIEW_BARANG yang sudah Anda definisikan di SQL
@@ -40,24 +40,10 @@ app.get('/api/v1/barang', async (req, res) => {
             message: 'Data barang berhasil diambil',
             data: rows
         });
-
-    } catch (error) {
-        console.error('Error saat mengambil data barang:', error.message);
-        res.status(500).json({
-            status: 'error',
-            message: 'Gagal terhubung ke database atau query bermasalah.',
-            details: error.message
-        });
-    } finally {
-        if (connection) {
-            connection.end();
-        }
-    }
 });
 
 app.get('/api/v1/satuan', async (req, res) => {
     let connection;
-    try {
         connection = await mysql.createConnection(dbConfig);
         
         // Mengambil data dari tabel 'satuan' secara langsung
@@ -73,24 +59,10 @@ app.get('/api/v1/satuan', async (req, res) => {
             message: 'Data satuan berhasil diambil',
             data: rows
         });
-
-    } catch (error) {
-        console.error('Error saat mengambil data satuan:', error.message);
-        res.status(500).json({
-            status: 'error',
-            message: 'Gagal terhubung ke database atau query bermasalah.',
-            details: error.message
-        });
-    } finally {
-        if (connection) {
-            connection.end();
-        }
-    }
 });
 
 app.get('/api/v1/vendor', async (req, res) => {
     let connection;
-    try {
         connection = await mysql.createConnection(dbConfig);
         
         // Mengambil data dari tabel 'satuan' secara langsung
@@ -102,20 +74,48 @@ app.get('/api/v1/vendor', async (req, res) => {
             message: 'Data satuan berhasil diambil',
             data: rows
         });
-
-    } catch (error) {
-        console.error('Error saat mengambil data satuan:', error.message);
-        res.status(500).json({
-            status: 'error',
-            message: 'Gagal terhubung ke database atau query bermasalah.',
-            details: error.message
-        });
-    } finally {
-        if (connection) {
-            connection.end();
-        }
-    }
 });
+
+app.get('/api/v1/pengadaan', async (req, res) => {
+    let connection;
+        connection = await mysql.createConnection(dbConfig);
+        
+        // Mengambil data dari tabel 'satuan' secara langsung
+        const [rows] = await connection.execute('SELECT * FROM view_pengadaan');
+        
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Data satuan berhasil diambil',
+            data: rows
+        });
+});
+
+app.get('/api/v1/penerimaan', async (req, res) => {
+    let connection;
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute('SELECT * FROM view_penerimaan');
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Data satuan berhasil diambil',
+            data: rows
+        });
+});
+app.get('/api/v1/penjualan', async (req, res) => {
+    let connection;
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute('SELECT * FROM view_penjualan');
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Data satuan berhasil diambil',
+            data: rows
+        });
+});
+
+
+
 
 // --- 3. MULAI SERVER ---
 app.listen(port, () => {
