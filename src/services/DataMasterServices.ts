@@ -1,8 +1,7 @@
 // src/services/MasterDataService.ts - Service untuk mengambil data dari Node.js API
 
 import { ViewBarang, ViewPengadaan, ViewPenerimaan, ViewPenjualan } from '../types/data';
-import { Satuan } from '../types/db';
-import { Vendor } from '../types/db';
+import { Satuan, Vendor, Barang} from '../types/db';
 
 // >>> GANTI URL INI <<<
 // Pastikan URL ini sesuai dengan port tempat server Node.js Anda berjalan (misal: 8000)
@@ -124,4 +123,55 @@ export async function fetchPenjualanData(): Promise<ViewPenjualan[]> {
         return result.data as ViewPenjualan[];
     }
     return [];
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
+    if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({ message: `HTTP Status ${response.status}` }));
+        throw new Error(errorBody.message || `Gagal melakukan request: HTTP Status ${response.status}`);
+    }
+    const result = await response.json();
+    if (result.status === 'success') {
+        return result.data as T;
+    } else {
+        throw new Error(result.message || "Operasi gagal.");
+    }
+}
+export async function fetchSingleBarangData(id: number): Promise<Barang> { // Mengambil data asli untuk form edit
+    const response = await fetch(`${API_BASE_URL}/barang/${id}`);
+    return handleResponse<Barang>(response);
+}
+
+export async function addBarangData(barangData: Omit<Barang, 'idbarang' | 'nama_satuan'>): Promise<ViewBarang> { // Return type bisa ViewBarang jika API mengembalikan data dari view
+    const response = await fetch(`${API_BASE_URL}/barang`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(barangData),
+    });
+    return handleResponse<ViewBarang>(response); // Sesuaikan return type jika perlu
+}
+
+export async function updateBarangData(id: number, barangData: Omit<Barang, 'idbarang' | 'nama_satuan'>): Promise<ViewBarang> { // Return type bisa ViewBarang
+    const response = await fetch(`${API_BASE_URL}/barang/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(barangData),
+    });
+     return handleResponse<ViewBarang>(response); // Sesuaikan return type jika perlu
+}
+
+export async function deleteBarangData(id: number): Promise<void> { // Biasanya tidak mengembalikan data
+    const response = await fetch(`${API_BASE_URL}/barang/${id}`, {
+        method: 'DELETE',
+    });
+     if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({ message: `HTTP Status ${response.status}` }));
+        throw new Error(errorBody.message || `Gagal menghapus data: HTTP Status ${response.status}`);
+    }
+    // Tidak perlu parse JSON jika status 200/204 OK dan tidak ada body
+}
+export async function fetchSatuanOptions(): Promise<Satuan[]> { // Ubah nama fungsi agar lebih jelas
+    const response = await fetch(`${API_BASE_URL}/satuan`);
+    // API backend sudah memfilter status=1
+    return handleResponse<Satuan[]>(response);
 }

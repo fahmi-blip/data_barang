@@ -13,6 +13,8 @@ import NotFound from "./pages/OtherPage/NotFound";
 // import BarChart from "./pages/Charts/BarChart";
 // import Calendar from "./pages/Calendar";
 import BarangPage from "./pages/master/Barang";
+import TambahBarangPage from "./pages/master/TambahBarang";
+// import EditBarangPage from "./pages/master/EditBarang";
 import SatuanPage from "./pages/master/Satuan";
 import VendorPage from "./pages/master/Vendor";
 import PengadaanPage from "./pages/Penjualan/Pengadaan";
@@ -37,6 +39,8 @@ export default function App() {
             <Route index path="/" element={<Home />} />
 
             <Route path="/barang" element={<BarangPage />} />
+            <Route path="/barang/tambah" element={<TambahBarangPage />} />
+            {/* <Route path="/barang/edit/:id" element={<EditBarangPage />} /> */}
             <Route path="/satuan" element={<SatuanPage />} />
             <Route path="/vendor" element={<VendorPage />} />
             <Route path="/master/user" element={<Blank />} />

@@ -62,6 +62,12 @@ export interface ViewPenjualan {
   details?: DetailPenjualan[]; //menampung detail relasi
 }
 
-
+interface InputProps {
+    id: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder: string;
+    required?: boolean;
+}
 // Anda akan menambahkan interface lain di sini (ViewSatuan, ViewVendor, dll.)
 // jika Anda mulai mengimplementasikan halaman tersebut.
