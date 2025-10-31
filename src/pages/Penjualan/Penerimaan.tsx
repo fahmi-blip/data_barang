@@ -7,6 +7,7 @@ import PageMeta from "../../components/common/PageMeta";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import Button from "../../components/ui/button/Button";
+import { useNavigate } from "react-router-dom";
 import { PlusIcon } from "../../icons"; 
 import { PencilIcon, TrashBinIcon} from "../../icons";
 // Import tipe data dan service
@@ -16,6 +17,7 @@ import { fetchPenerimaanData } from "../../services/DataMasterServices"; // Meng
 
 
 export default function PenerimaanPage() {
+  const navigate = useNavigate();
   const [penerimaanList, setPenerimaanList] = useState<ViewPenerimaan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +56,12 @@ export default function PenerimaanPage() {
       
       <div className="space-y-6">
         <ComponentCard title="Daftar Penerimaan">
+            <div className="flex justify-end mb-4">
+                <Button size="sm" variant="primary"
+                onClick={() => navigate('/penerimaan/detail')}>
+                    Detail Penerimaan
+                </Button>
+            </div>
             <div className="flex justify-end mb-4">
                 <Button size="sm" variant="primary">
                     Tambah Penerimaan Baru

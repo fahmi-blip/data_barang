@@ -265,8 +265,20 @@ app.get('/api/v1/pengadaan/detail', async (req, res) => {
 
 app.get('/api/v1/penerimaan', async (req, res) => {
     let connection;
+    connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.execute('SELECT * FROM view_penerimaan');
+    
+    res.status(200).json({
+        status: 'success',
+        message: 'Data satuan berhasil diambil',
+        data: rows
+    });
+});
+app.get('/api/v1/penerimaan/detail', async (req, res) => {
+    let connection;
         connection = await mysql.createConnection(dbConfig);
-        const [rows] = await connection.execute('SELECT * FROM view_penerimaan');
+        
+        const [rows] = await connection.execute('SELECT * FROM view_detail_penerimaan');
 
         res.status(200).json({
             status: 'success',
@@ -284,8 +296,20 @@ app.get('/api/v1/penjualan', async (req, res) => {
             message: 'Data satuan berhasil diambil',
             data: rows
         });
-});
-
+    });
+    app.get('/api/v1/penjualan/detail', async (req, res) => {
+        let connection;
+            connection = await mysql.createConnection(dbConfig);
+            
+            const [rows] = await connection.execute('SELECT * FROM view_detail_penjualan');
+    
+            res.status(200).json({
+                status: 'success',
+                message: 'Data satuan berhasil diambil',
+                data: rows
+            });
+    });
+    
 
 
 app.listen(port, () => {

@@ -7,6 +7,7 @@ import PageMeta from "../../components/common/PageMeta";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import Button from "../../components/ui/button/Button";
+import { useNavigate } from "react-router-dom";
 import { PlusIcon } from "../../icons"; 
 import { PencilIcon, TrashBinIcon} from "../../icons";
 // Import tipe data dan service
@@ -16,6 +17,7 @@ import { fetchPenjualanData } from "../../services/DataMasterServices"; // Mengg
 
 
 export default function PenjualanPage() {
+  const navigate = useNavigate();
   const [penjualanList, setPenjualanList] = useState<ViewPenjualan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +47,12 @@ export default function PenjualanPage() {
       
       <div className="space-y-6">
         <ComponentCard title="Daftar Penjualan">
+            <div className="flex justify-end mb-4">
+                <Button size="sm" variant="primary"
+                onClick={() => navigate('/penjualan/detail')}>
+                    Detail Penjualan
+                </Button>
+            </div>
             <div className="flex justify-end mb-4">
                 <Button size="sm" variant="primary">
                     Tambah Penjualan Baru

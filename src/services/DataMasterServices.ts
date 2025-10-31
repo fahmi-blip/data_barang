@@ -1,7 +1,8 @@
 // src/services/MasterDataService.ts - Service untuk mengambil data dari Node.js API
 
 import { ViewBarang, ViewPengadaan, ViewPenerimaan, ViewPenjualan,
-     Role, User, ViewDetailPengadaan, MarginPenjualan} from '../types/data';
+     Role, User, ViewDetailPengadaan, MarginPenjualan,
+     ViewDetailPenerimaan, ViewDetailPenjualan} from '../types/data';
 import { Satuan, Vendor, Barang} from '../types/db';
 
 // >>> GANTI URL INI <<<
@@ -164,9 +165,12 @@ export async function fetchMarginPenjualan(): Promise<MarginPenjualan[]> {
     }
     
      const result = await response.json();
-    // Asumsikan API Node.js mengembalikan format { status: 'success', data: [...] }
-    if (result.data) {
-        return result.data as MarginPenjualan[];
+    if (result && Array.isArray(result.data)) {
+        const normalizedData = result.data.map((item: any) => ({
+            ...item,
+            status: Number(item.status ?? item.STATUS), // Konversi status ke angka
+        }));
+        return normalizedData as MarginPenjualan[];
     }
     return [];
 }
@@ -264,6 +268,34 @@ export async function fetchDetailPengadaanData(): Promise<ViewDetailPengadaan[]>
      const result = await response.json();
     if (result.data) {
         return result.data as ViewDetailPengadaan[];
+    }
+    return [];
+}
+export async function fetchDetailPenerimaanData(): Promise<ViewDetailPenerimaan[]> {
+    const response = await fetch(`${API_BASE_URL}/penerimaan/detail`); // Anda perlu buat endpoint ini di server.js
+    
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.message || `Gagal mengambil data: HTTP Status ${response.status}`);
+    }
+    
+     const result = await response.json();
+    if (result.data) {
+        return result.data as ViewDetailPenerimaan[];
+    }
+    return [];
+}
+export async function fetchDetailPenjualanData(): Promise<ViewDetailPenjualan[]> {
+    const response = await fetch(`${API_BASE_URL}/penjualan/detail`); // Anda perlu buat endpoint ini di server.js
+    
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.message || `Gagal mengambil data: HTTP Status ${response.status}`);
+    }
+    
+     const result = await response.json();
+    if (result.data) {
+        return result.data as ViewDetailPenjualan[];
     }
     return [];
 }

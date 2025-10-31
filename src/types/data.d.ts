@@ -88,3 +88,23 @@ export interface MarginPenjualan {
   iduser: number | null;
   update_at: string;
 }
+
+export interface ViewDetailPenjualan  {
+  iddetail_penjualan: number;
+  nama_barang: string;
+  harga_satuan: number;
+  jumlah: number;
+  subtotal: number;
+  idpenjualan: number;
+}
+
+export interface ViewDetailPenerimaan {
+  iddetail_penerimaan: number;
+  idpenerimaan: number;
+  nama_barang: string;
+  jumlah_terima: number;
+  harga_satuan_terima: number;
+  sub_total_terima: number
+}
+
+

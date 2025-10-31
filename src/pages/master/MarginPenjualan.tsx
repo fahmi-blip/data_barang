@@ -41,11 +41,14 @@ export default function MarginPenjualanPage() {
     loadData();
   }, []);
 
-const renderStatusBadge = (status: StatusToko) => (
-    <Badge size="sm" color={status == 1 ? "success" : "error"}>
-        {status == 1 ? "Aktif" : "Nonaktif"}
-    </Badge>
-);
+const renderStatusBadge = (status: StatusToko) => {
+    const isActive = Number(status) === 1;
+    return (
+        <Badge size="sm" color={isActive ? "success" : "error"}>
+            {isActive ? "Aktif" : "Nonaktif"}
+        </Badge>
+    );
+};
 
 
   return (
@@ -89,15 +92,15 @@ const renderStatusBadge = (status: StatusToko) => (
                         <TableCell className="px-5 py-4 text-sm">{item.update_at}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">
                             <div className="flex justify-center items-center space-x-2">
-                              {/* <Button
+                               <Button
                                   size="sm"
                                   variant="outline"
-                                  className="text-xs !p-1.5" // Ukuran lebih kecil
+                                  className="text-xs !p-1.5" 
                                   // onClick={() => handleEditClick(item.idbarang)}
                               >
                                    <PencilIcon className="size-4"/>
-                                   {/* <span className="sr-only">Edit {item.nama_barang}</span> */}
-                              {/* </Button> */}
+                                   {/* <span className="sr-only">Edit {item.nama_barang}</span>  */}
+                              </Button>
                                <Button
                                   size="sm"
                                   variant="outline"
