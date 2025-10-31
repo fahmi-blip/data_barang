@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../compon
 import Badge from "../../components/ui/badge/Badge";
 import Button from "../../components/ui/button/Button";
 import { PlusIcon } from "../../icons"; 
-
+import { PencilIcon, TrashBinIcon } from "../../icons";
 // Import tipe data dan service
 import { Satuan, StatusToko } from "../../types/data.d"; 
 import { fetchSatuanData } from "../../services/DataMasterServices"; // Menggunakan fungsi baru
@@ -55,11 +55,11 @@ export default function SatuanPage() {
       
       <div className="space-y-6">
         <ComponentCard title="Daftar Satuan">
-            <div className="flex justify-end mb-4">
-                <Button size="sm" variant="primary" startIcon={<PlusIcon className="size-5" />}>
+            {/* <div className="flex justify-end mb-4">
+                <Button size="sm" variant="primary">
                     Tambah Satuan Baru
                 </Button>
-            </div>
+            </div> */}
 
           {loading ? (
             <p className="p-4 text-center text-gray-500 dark:text-gray-400">Memuat data satuan dari server...</p>
@@ -73,22 +73,41 @@ export default function SatuanPage() {
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
               <div className="max-w-full overflow-x-auto">
                 <Table className="w-full">
-                  <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                  <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50 dark:bg-white/[0.03]">
                     <TableRow>
-                      <TableCell isHeader className="px-5 py-3">ID Satuan</TableCell>
-                      <TableCell isHeader className="px-5 py-3">Nama Satuan</TableCell>
-                      <TableCell isHeader className="px-5 py-3">Status</TableCell>
-                      <TableCell isHeader className="px-5 py-3">Aksi</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Satuan</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Satuan</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                     {satuanList.map((item) => (
                       <TableRow key={item.idsatuan} className="hover:bg-gray-50 dark:hover:bg-white/5">
-                        <TableCell className="px-5 py-4">{item.idsatuan}</TableCell>
-                        <TableCell className="px-5 py-4 font-medium text-gray-800 dark:text-white/90">{item.nama_satuan}</TableCell>
-                        <TableCell className="px-5 py-4">{renderStatusBadge(item.status)}</TableCell>
-                        <TableCell className="px-5 py-4">
-                            <Button size="sm" variant="outline" className="text-xs">Edit</Button>
+                        <TableCell className="px-5 py-4 text-sm">{item.idsatuan}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_satuan}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{renderStatusBadge(item.status)}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">
+                            <div className="flex justify-center items-center space-x-2">
+                              <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs !p-1.5" // Ukuran lebih kecil
+                                  // onClick={() => handleEditClick(item.idbarang)}
+                              >
+                                   <PencilIcon className="size-4"/>
+                                   {/* <span className="sr-only">Edit {item.nama_barang}</span> */}
+                              </Button>
+                               <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs !p-1.5 text-error-600 border-error-300 hover:bg-error-50 hover:border-error-500 dark:border-error-500/30 dark:hover:bg-error-500/10 dark:text-error-400"
+                                  // onClick={() => handleDeleteClick(item.idbarang, item.nama_barang)}
+                               >
+                                   <TrashBinIcon className="size-4"/>
+                                   {/* <span className="sr-only">Hapus {item.nama_barang}</span> */}
+                               </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

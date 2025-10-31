@@ -61,13 +61,30 @@ export interface ViewPenjualan {
   idmargin_penjualan: number | null;
   details?: DetailPenjualan[]; //menampung detail relasi
 }
-
-interface InputProps {
-    id: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    placeholder: string;
-    required?: boolean;
+export interface Role {
+  idrole: number;
+  nama_role: string;
 }
-// Anda akan menambahkan interface lain di sini (ViewSatuan, ViewVendor, dll.)
-// jika Anda mulai mengimplementasikan halaman tersebut.
+
+export interface User {
+  iduser: number;
+  username: string;
+  idrole: number | null;
+} 
+
+export interface ViewDetailPengadaan {
+  iddetail_pengadaan: number;
+  idpengadaan: number;
+  nama_barang: string;
+  harga_satuan: number;
+  jumlah: number;
+  sub_total: number;
+}
+export interface MarginPenjualan {
+  idmargin_penjualan: number;
+  created_at: string;
+  persen: number;
+  status: StatusToko;
+  iduser: number | null;
+  update_at: string;
+}

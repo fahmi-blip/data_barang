@@ -51,40 +51,37 @@ export interface MarginPenjualan {
 
 export interface Barang {
   idbarang: number;
-  jenis: string; // CHAR(1) - Misal 'B' untuk Barang, 'J' untuk Jasa
+  jenis: string;
   nama: string;
   idsatuan: number | null;
   status: StatusToko;
-  nama_satuan?: string; // Untuk display
+  nama_satuan?: string; 
 }
 
 
-// ===================================
-// TRANSAKSI (Transactions)
-// ===================================
 
 export interface DetailPengadaan {
-  iddetail_pengadaan: number; // INT
+  iddetail_pengadaan: number; 
   harga_satuan: number;
   jumlah: number;
   sub_total: number | null;
   idbarang: number | null;
-  idpengadaan: number | null; // INT
-  nama_barang?: string; // Untuk display
+  idpengadaan: number | null; 
+  nama_barang?: string; 
 }
 
 export interface Pengadaan {
-  idpengadaan: number; // INT
+  idpengadaan: number; 
   timestamp: string;
   user_iduser: number | null;
   vendor_idvendor: number | null;
   subtotal_nilai: number;
   ppn: number;
   total_nilai: number;
-  status: string; // CHAR(1) - default '1'
-  nama_vendor?: string; // Untuk display
-  username?: string; // Untuk display
-  details?: DetailPengadaan[]; // Untuk menampung detail relasi
+  status: string; 
+  nama_vendor?: string; 
+  username?: string; 
+  details?: DetailPengadaan[]; 
 }
 
 export interface DetailPenerimaan {

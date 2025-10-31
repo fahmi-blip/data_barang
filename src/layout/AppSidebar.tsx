@@ -15,6 +15,7 @@ import {
   DocsIcon,
   TableIcon,
   UserCircleIcon,
+  FolderIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -44,6 +45,9 @@ const navItems: NavItem[] = [
       { name: "Barang", path: "/barang", pro: false },
       { name: "Satuan", path: "/satuan", pro: false },
       { name: "Vendor", path: "/vendor", pro: false },
+      { name: "Role", path: "/role", pro: false },
+      { name: "User", path: "/user", pro: false },
+      { name: "Margin", path: "/margin", pro: false },
     ],
   },
   {
@@ -55,6 +59,13 @@ const navItems: NavItem[] = [
       { name: "Penjualan", path: "/penjualan", pro: false },
     ],
   },
+  // {
+  //   icon: <FolderIcon />, // Menggunakan TableIcon untuk Transaksi
+  //   name: "Detail Transaksi",
+  //   subItems: [
+  //     { name: "Detail Pengadaan", path: "/pengadaan", pro: false },
+  //   ],
+  // },
   // {
   //   icon: <CalenderIcon />,
   //   name: "Calendar",
@@ -70,11 +81,11 @@ const navItems: NavItem[] = [
     icon: <ListIcon />,
     subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
   },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
+  // {
+  //   name: "Tables",
+  //   icon: <TableIcon />,
+  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+  // },
   // {
   //   name: "Pages",
   //   icon: <PageIcon />,

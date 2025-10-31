@@ -13,14 +13,18 @@ import NotFound from "./pages/OtherPage/NotFound";
 // import BarChart from "./pages/Charts/BarChart";
 // import Calendar from "./pages/Calendar";
 import BarangPage from "./pages/master/Barang";
-import TambahBarangPage from "./pages/master/TambahBarang";
-// import EditBarangPage from "./pages/master/EditBarang";
+import BarangTambahPage from "./pages/master/BarangTambah";
+import EditBarangPage from "./pages/master/EditBarang";
 import SatuanPage from "./pages/master/Satuan";
 import VendorPage from "./pages/master/Vendor";
 import PengadaanPage from "./pages/Penjualan/Pengadaan";
-import PenerimaanPage from "./pages/Penjualan/penerimaan";
+import DetailPengadaanPage from "./pages/Penjualan/DetailPengadaan";
+import PenerimaanPage from "./pages/Penjualan/Penerimaan";
+import RolePage from "./pages/master/Role";
+import UserPage from "./pages/master/User";
+import MarginPenjualanPage from "./pages/master/MarginPenjualan";
 import PenjualanPage from "./pages/Penjualan/Penjualan";
-import BasicTables from "./pages/Tables/BasicTables";
+// import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
@@ -39,14 +43,17 @@ export default function App() {
             <Route index path="/" element={<Home />} />
 
             <Route path="/barang" element={<BarangPage />} />
-            <Route path="/barang/tambah" element={<TambahBarangPage />} />
-            {/* <Route path="/barang/edit/:id" element={<EditBarangPage />} /> */}
+            <Route path="/barang/tambah" element={<BarangTambahPage />} />
+            <Route path="/barang/edit/:id" element={<EditBarangPage />} />
             <Route path="/satuan" element={<SatuanPage />} />
             <Route path="/vendor" element={<VendorPage />} />
-            <Route path="/master/user" element={<Blank />} />
+            <Route path="/role" element={<RolePage />} />
+            <Route path="/user" element={<UserPage />} />
+            <Route path="/margin" element={<MarginPenjualanPage />} />
 
             {/* Tambahkan rute untuk Transaksi (Ganti <Blank /> dengan komponen Anda) */}
             <Route path="/pengadaan" element={<PengadaanPage />} />
+            <Route path="/pengadaan/detail" element={<DetailPengadaanPage />} />
             <Route path="/penerimaan" element={<PenerimaanPage />} />
             <Route path="/penjualan" element={<PenjualanPage />} />
             
@@ -59,7 +66,7 @@ export default function App() {
             <Route path="/form-elements" element={<FormElements />} />
 
             {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
+            {/* <Route path="/basic-tables" element={<BasicTables />} /> */}
 
             {/* Ui Elements */}
             {/* <Route path="/alerts" element={<Alerts />} />

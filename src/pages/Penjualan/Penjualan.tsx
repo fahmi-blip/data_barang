@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../compon
 import Badge from "../../components/ui/badge/Badge";
 import Button from "../../components/ui/button/Button";
 import { PlusIcon } from "../../icons"; 
-
+import { PencilIcon, TrashBinIcon} from "../../icons";
 // Import tipe data dan service
 import { ViewPenjualan } from "../../types/data";
 import { StatusToko } from "../../types/data.d";
@@ -65,28 +65,47 @@ export default function PenjualanPage() {
                 <Table className="w-full">
                   <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                     <TableRow>
-                      <TableCell isHeader className="px-5 py-3">ID Penjualan</TableCell>
-                      <TableCell isHeader className="px-5 py-3">Creat_at</TableCell>
-                      <TableCell isHeader className="px-5 py-3">SubTotal Nilai</TableCell>
-                      <TableCell isHeader className="px-5 py-3">PPN</TableCell>
-                      <TableCell isHeader className="px-5 py-3">Total Nilai</TableCell>
-                      <TableCell isHeader className="px-5 py-3">User</TableCell>
-                      <TableCell isHeader className="px-5 py-3">Margin</TableCell>
-                      <TableCell isHeader className="px-5 py-3">Aksi</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Penjualan</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Creat_at</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">SubTotal Nilai</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">PPN</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Total Nilai</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">User</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Margin</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                     {penjualanList.map((item) => (
                       <TableRow key={item.idpenjualan} className="hover:bg-gray-50 dark:hover:bg-white/5">
-                        <TableCell className="px-5 py-4">{item.idpenjualan}</TableCell>
-                        <TableCell className="px-5 py-4">{item.created_at}</TableCell>
-                        <TableCell className="px-5 py-4">{item.subtotal_nilai}</TableCell>
-                        <TableCell className="px-5 py-4">{item.ppn}</TableCell>
-                        <TableCell className="px-5 py-4">{item.total_nilai}</TableCell>
-                        <TableCell className="px-5 py-4 font-medium text-gray-800 dark:text-white/90">{item.nama_user}</TableCell>
-                        <TableCell className="px-5 py-4">{item.margin}</TableCell>
-                        <TableCell className="px-5 py-4">
-                            <Button size="sm" variant="outline" className="text-xs">Edit</Button>
+                        <TableCell className="px-5 py-4 text-sm">{item.idpenjualan}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.created_at}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.subtotal_nilai}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.ppn}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.total_nilai}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_user}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.margin}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">
+                            <div className="flex justify-center items-center space-x-2">
+                              {/* <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs !p-1.5" // Ukuran lebih kecil
+                                  // onClick={() => handleEditClick(item.idbarang)}
+                              >
+                                   <PencilIcon className="size-4"/>
+                                   {/* <span className="sr-only">Edit {item.nama_barang}</span> */}
+                              {/* </Button> */}
+                               <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-xs !p-1.5 text-error-600 border-error-300 hover:bg-error-50 hover:border-error-500 dark:border-error-500/30 dark:hover:bg-error-500/10 dark:text-error-400"
+                                  // onClick={() => handleDeleteClick(item.idbarang, item.nama_barang)}
+                               >
+                                   <TrashBinIcon className="size-4"/>
+                                   {/* <span className="sr-only">Hapus {item.nama_barang}</span> */}
+                               </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

@@ -7,16 +7,17 @@ import PageMeta from "../../components/common/PageMeta";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import Button from "../../components/ui/button/Button";
+import { useNavigate } from "react-router-dom";
 import { PlusIcon } from "../../icons"; 
 import { PencilIcon, TrashBinIcon} from "../../icons";
 // Import tipe data dan service
-import { ViewPenerimaan } from "../../types/data";
+import { MarginPenjualan} from "../../types/data";
 import { StatusToko } from "../../types/data.d";
-import { fetchPenerimaanData } from "../../services/DataMasterServices"; // Menggunakan fungsi baru
+import { fetchMarginPenjualan } from "../../services/DataMasterServices"; // Menggunakan fungsi baru
 
-
-export default function PenerimaanPage() {
-  const [penerimaanList, setPenerimaanList] = useState<ViewPenerimaan[]>([]);
+export default function MarginPenjualanPage() {
+  // const navigate = useNavigate();
+  const [marginPenjualanList, setMarginPenjualanList] = useState<MarginPenjualan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,42 +25,36 @@ export default function PenerimaanPage() {
     setLoading(true);
     setError(null);
     try {
-          const data = await fetchPenerimaanData(); // Memanggil fungsi fetch Satuan
-          setPenerimaanList(data);
-        } catch (err: any) {
-          const errorMessage = err.message || "Terjadi kesalahan yang tidak diketahui.";
-          setError(errorMessage);
-          setPenerimaanList([]);
-        } finally {
-          setLoading(false);
-        }
-    };
+      const data = await fetchMarginPenjualan();
+       console.log("🔍 Data dari API:", data); // Memanggil fungsi fetch Satuan
+      setMarginPenjualanList(data);
+    } catch (err: any) {
+      const errorMessage = err.message || "Terjadi kesalahan yang tidak diketahui.";
+      setError(errorMessage);
+      setMarginPenjualanList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadData();
   }, []);
 
- const renderStatusBadge = (status: StatusToko | string | number) => {
-  const numericStatus = typeof status === "string" ? Number(status) : Number(status);
-  const isActive = numericStatus === 1;
-  return (
-    <Badge size="sm" color={isActive ? "success" : "error"}>
-      {isActive ? "Diterima" : "Belum Diterima"}
+const renderStatusBadge = (status: StatusToko) => (
+    <Badge size="sm" color={status == 1 ? "success" : "error"}>
+        {status == 1 ? "Aktif" : "Nonaktif"}
     </Badge>
-  );
-};
+);
+
+
   return (
     <>
       <PageMeta title="Data Vendor" description="Halaman untuk mengelola data master Vendor." />
-      <PageBreadcrumb pageTitle="Data Penerimaan" />
+      <PageBreadcrumb pageTitle="Data Margin Penjualan" />
       
       <div className="space-y-6">
-        <ComponentCard title="Daftar Penerimaan">
-            <div className="flex justify-end mb-4">
-                <Button size="sm" variant="primary">
-                    Tambah Penerimaan Baru
-                </Button>
-            </div>
-
+        <ComponentCard title="Daftar Margin Penjualan">
           {loading ? (
             <p className="p-4 text-center text-gray-500 dark:text-gray-400">Memuat data satuan dari server...</p>
           ) : error ? (
@@ -72,24 +67,26 @@ export default function PenerimaanPage() {
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
               <div className="max-w-full overflow-x-auto">
                 <Table className="w-full">
-                  <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50 dark:bg-white/[0.03]">
+                  <TableHeader className="border-b border-gray-100 bg-white dark:border-white/[0.05] dark:bg-gray-800">
                     <TableRow>
-                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Penerimaan</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Creat_at</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama User</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Diterima oleh</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Margin</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Creat At</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Persen</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID User</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Update At</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                    {penerimaanList.map((item) => (
-                      <TableRow key={item.idpenerimaan} className="hover:bg-gray-50 dark:hover:bg-white/5">
-                        <TableCell className="px-5 py-4 text-sm">{item.idpenerimaan}</TableCell>
+                    {marginPenjualanList.map((item) => (
+                      <TableRow key={item.idmargin_penjualan} className="hover:bg-gray-50 dark:hover:bg-white/5">
+                        <TableCell className="px-5 py-4 text-sm">{item.idmargin_penjualan}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.created_at}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_vendor}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.diterima_oleh}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.persen}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{renderStatusBadge(item.status)}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.iduser}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.update_at}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">
                             <div className="flex justify-center items-center space-x-2">
                               {/* <Button
