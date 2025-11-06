@@ -6,17 +6,25 @@ interface Option {
 }
 
 interface SelectProps {
+  id?: string;
   options: Option[];
   placeholder?: string;
+  value?: string;
   onChange: (value: string) => void;
   className?: string;
+  disabled?: boolean;
+  required?: boolean;
   defaultValue?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
+  id,
+  required,
   options,
+  value,
   placeholder = "Select an option",
   onChange,
+  disabled,
   className = "",
   defaultValue = "",
 }) => {

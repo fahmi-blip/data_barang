@@ -302,7 +302,7 @@ export async function addBarangData(barangData: Omit<Barang, 'idbarang' | 'nama_
 }
 
 export async function updateBarangData(id: number, barangData: Omit<Barang, 'idbarang' | 'nama_satuan'>): Promise<ViewBarang> {
-    const response = await fetch(`${API_BASE_URL}/barang/edit/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/barang/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(barangData),

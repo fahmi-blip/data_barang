@@ -63,7 +63,7 @@ app.get('/api/v1/barang/:id', async (req, res) => {
              return res.status(400).json({ status: 'fail', message: 'ID barang tidak valid' });
         }
         connection = await getConnection();
-        const [rows] = await connection.execute('UPDATE barang set nama WHERE idbarang = ?', [id]);
+        const [rows] = await connection.execute('SELECT idbarang, nama, jenis, idsatuan, status FROM barang WHERE idbarang = ?', [id]);
         if (rows.length === 0) {
             return res.status(404).json({ status: 'fail', message: `Barang dengan ID ${id} tidak ditemukan` });
         }
