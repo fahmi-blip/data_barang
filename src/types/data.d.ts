@@ -10,18 +10,38 @@ export type BadanHukum = 'A' | 'T' | null;
  */
 export interface ViewBarang {
   idbarang: number;
-  nama_barang: string; // dari kolom 'nama' di tabel barang
+  nama: string; // dari kolom 'nama' di tabel barang
   jenis: string;      // CHAR(1)
   nama_satuan: string; // Hasil JOIN dari tabel satuan
   status: StatusToko;
 }
+export interface ViewBarangAktif {
+  idbarang: number;
+  nama: string; // dari kolom 'nama' di tabel barang
+  jenis?: string;      // CHAR(1)
+  nama_satuan: string; // Hasil JOIN dari tabel satuan
+  status: StatusToko;
+}
+
 
 export interface Satuan {
   idsatuan: number;
   nama_satuan: string;
   status: StatusToko;
 }
+export interface SatuanAktif {
+  idsatuan: number;
+  nama_satuan: string;
+  status ?: StatusToko;
+}
+
 export interface Vendor {
+  idvendor: number;
+  nama_vendor: string;
+  badan_hukum: string | null;
+  status: StatusToko;
+}
+export interface VendorAktif {
   idvendor: number;
   nama_vendor: string;
   badan_hukum: string | null;
@@ -30,7 +50,7 @@ export interface Vendor {
 
 export interface ViewPengadaan{
   idpengadaan: number;
-  timestamp: string;
+  tanggal_pengadaan: string;
   nama_user: string;
   nama_vendor: string;
   subtotal_nilai: number;
@@ -41,23 +61,23 @@ export interface ViewPengadaan{
 
 export interface ViewPenerimaan {
   idpenerimaan: number; // INT
-    created_at: string;
+    tanggal_penerimaan : string;
     status: string; // CHAR(1) - default '1'
     idpengadaan: number | null; // INT
     nama_vendor: string; // Untuk display
-    diterima_oleh: string; // Untuk display
+    nama_user: string; // Untuk display
     pengadaan?: Pengadaan; // Untuk mendapatkan data pengadaan
     details?: DetailPenerimaan[];
 }
 
 export interface ViewPenjualan {
   idpenjualan: number; // INT
-  created_at: string;
+  tanggal_penjualan: string;
   subtotal_nilai: number;
   ppn: number;
   total_nilai: number;
   nama_user: string; // Untuk display
-  margin: number; // Untuk display
+  margin_penjualan: number; // Untuk display
   idmargin_penjualan: number | null;
   details?: DetailPenjualan[]; //menampung detail relasi
 }
@@ -85,7 +105,15 @@ export interface MarginPenjualan {
   created_at: string;
   persen: number;
   status: StatusToko;
-  iduser: number | null;
+  dibuat_oleh: number | null;
+  update_at: string;
+}
+export interface MarginPenjualanAktif {
+  idmargin_penjualan: number;
+  created_at: string;
+  persen: number;
+  status: StatusToko;
+  dibuat_oleh: number | null;
   update_at: string;
 }
 
@@ -106,5 +134,29 @@ export interface ViewDetailPenerimaan {
   harga_satuan_terima: number;
   sub_total_terima: number
 }
+export interface PengadaanSPBody {
+  p_user_id: number;
+  p_vendor_id: number;
+  p_subtotal: number;
+  p_ppn: number;
+}
 
+// Tipe untuk body request INSERT Detail Penerimaan (untuk Trigger)
+export interface NewDetailPenerimaanBody {
+  idpenerimaan: number;
+  idbarang: number;
+  jumlah: number;
+  harga: number;
+}
+
+// Tipe untuk data dari VIEW_KARTU_STOK (Tambahan)
+export interface ViewKartuStok {
+  idkartu_stok: number;
+  jenis_transaksi: string; // 'M' atau 'K'
+  masuk: number;
+  keluar: number;
+  stock: number;
+  created_at: string; // TIMESTAMP
+  nama_barang: string;
+}
 

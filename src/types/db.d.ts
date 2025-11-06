@@ -20,12 +20,6 @@ export interface Satuan {
   status: StatusToko;
 }
 
-export interface Vendor {
-  idvendor: number;
-  nama_vendor: string;
-  badan_hukum: string | null; // CHAR(1) - misal 'T' untuk Terdaftar
-  status: string; // CHAR(1) - default '1'
-}
 
 export interface Role {
     idrole: number;

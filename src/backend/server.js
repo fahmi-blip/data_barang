@@ -28,12 +28,25 @@ async function getConnection() {
     return await mysql.createConnection(dbConfig);
 }
 
-app.get('/api/v1/barang', async (req, res) => {
+app.get('/api/v1/barang/all', async (req, res) => {
     let connection;
     
         connection = await mysql.createConnection(dbConfig);
         
         const [rows] = await connection.execute('SELECT * FROM view_barang ');
+        
+        res.status(200).json({
+            status: 'success',
+            message: 'Data barang berhasil diambil',
+            data: rows
+        });
+});
+app.get('/api/v1/barang/active', async (req, res) => {
+    let connection;
+    
+        connection = await mysql.createConnection(dbConfig);
+        
+        const [rows] = await connection.execute('SELECT * FROM view_barang_aktif');
         
         res.status(200).json({
             status: 'success',
@@ -50,7 +63,7 @@ app.get('/api/v1/barang/:id', async (req, res) => {
              return res.status(400).json({ status: 'fail', message: 'ID barang tidak valid' });
         }
         connection = await getConnection();
-        const [rows] = await connection.execute('SELECT idbarang, nama, jenis, idsatuan, status FROM barang WHERE idbarang = ?', [id]);
+        const [rows] = await connection.execute('UPDATE barang set nama WHERE idbarang = ?', [id]);
         if (rows.length === 0) {
             return res.status(404).json({ status: 'fail', message: `Barang dengan ID ${id} tidak ditemukan` });
         }
@@ -168,10 +181,42 @@ app.delete('/api/v1/barang/:id', async (req, res) => {
 });
 
 
-app.get('/api/v1/satuan', async (req, res) => {
+app.get('/api/v1/satuan/all', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
-        const [rows] = await connection.execute('SELECT * FROM satuan');
+        const [rows] = await connection.execute('SELECT * FROM view_satuan');
+        
+        const normalizedRows = rows.map(row => ({
+        ...row,
+        status: Number(row.status)
+        }));
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Data satuan berhasil diambil',
+            data: normalizedRows
+        });
+});
+app.get('/api/v1/satuan/active', async (req, res) => {
+    let connection;
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute('SELECT * FROM view_satuan_aktif');
+        
+        const normalizedRows = rows.map(row => ({
+        ...row,
+        status: Number(row.status)
+        }));
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Data satuan berhasil diambil',
+            data: normalizedRows
+        });
+});
+app.get('/api/v1/satuan/active', async (req, res) => {
+    let connection;
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute('SELECT * FROM view_satuan_aktif');
         
         const normalizedRows = rows.map(row => ({
         ...row,
@@ -185,11 +230,24 @@ app.get('/api/v1/satuan', async (req, res) => {
         });
 });
 
-app.get('/api/v1/vendor', async (req, res) => {
+app.get('/api/v1/vendor/all', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
         
-        const [rows] = await connection.execute('SELECT * FROM vendor');
+        const [rows] = await connection.execute('SELECT * FROM view_vendor');
+        
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Data satuan berhasil diambil',
+            data: rows
+        });
+});
+app.get('/api/v1/vendor/active', async (req, res) => {
+    let connection;
+        connection = await mysql.createConnection(dbConfig);
+        
+        const [rows] = await connection.execute('SELECT * FROM view_vendor_aktif');
         
 
         res.status(200).json({
@@ -202,7 +260,7 @@ app.get('/api/v1/role', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
         
-        const [rows] = await connection.execute('SELECT * FROM role');
+        const [rows] = await connection.execute('SELECT * FROM view_role');
         
         res.status(200).json({
             status: 'success',
@@ -214,7 +272,7 @@ app.get('/api/v1/user', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
         
-        const [rows] = await connection.execute('SELECT * FROM user');
+        const [rows] = await connection.execute('SELECT * FROM view_user');
         
 
         res.status(200).json({
@@ -223,11 +281,24 @@ app.get('/api/v1/user', async (req, res) => {
             data: rows
         });
 });
-app.get('/api/v1/margin', async (req, res) => {
+app.get('/api/v1/margin/all', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
         
-        const [rows] = await connection.execute('SELECT * FROM margin_penjualan');
+        const [rows] = await connection.execute('SELECT * FROM view_margin_penjualan');
+        
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Data satuan berhasil diambil',
+            data: rows
+        });
+});
+app.get('/api/v1/margin/active', async (req, res) => {
+    let connection;
+        connection = await mysql.createConnection(dbConfig);
+        
+        const [rows] = await connection.execute('SELECT * FROM view_margin_penjualan_aktif');
         
 
         res.status(200).json({
@@ -254,7 +325,7 @@ app.get('/api/v1/pengadaan/detail', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
         
-        const [rows] = await connection.execute('SELECT * FROM view_detail_pengadaan');
+        const [rows] = await connection.execute('SELECT * FROM detail_pengadaan');
 
         res.status(200).json({
             status: 'success',
@@ -278,7 +349,7 @@ app.get('/api/v1/penerimaan/detail', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
         
-        const [rows] = await connection.execute('SELECT * FROM view_detail_penerimaan');
+        const [rows] = await connection.execute('SELECT * FROM detail_penerimaan');
 
         res.status(200).json({
             status: 'success',
@@ -301,7 +372,7 @@ app.get('/api/v1/penjualan', async (req, res) => {
         let connection;
             connection = await mysql.createConnection(dbConfig);
             
-            const [rows] = await connection.execute('SELECT * FROM view_detail_penjualan');
+            const [rows] = await connection.execute('SELECT * FROM detail_penjualan');
     
             res.status(200).json({
                 status: 'success',
@@ -315,3 +386,4 @@ app.get('/api/v1/penjualan', async (req, res) => {
 app.listen(port, () => {
     console.log(`Node.js API server berjalan di http://localhost:${port}`);
 });
+

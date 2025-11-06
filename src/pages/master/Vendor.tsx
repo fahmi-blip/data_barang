@@ -10,22 +10,28 @@ import Button from "../../components/ui/button/Button";
 import { PlusIcon } from "../../icons"; 
 import { PencilIcon, TrashBinIcon } from "../../icons";
 // Import tipe data dan service
-import { BadanHukum, StatusToko } from "../../types/data.d";
-import { Vendor } from "../../types/db";
-import { fetchVendorData } from "../../services/DataMasterServices"; // Menggunakan fungsi baru
+import { Vendor, VendorAktif,StatusToko,BadanHukum } from "../../types/data.d";
+import { fetchVendorData, fetchVendorDataAktif} from "../../services/DataMasterServices"; // Menggunakan fungsi baru
 
 export default function VendorPage() {
-  const [vendorList, setVendorList] = useState<Vendor[]>([]);
+  const [vendorList, setVendorList] = useState<(Vendor | VendorAktif)[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"all" | "active">("all");
 
   const loadData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchVendorData();
-       console.log("🔍 Data dari API:", data); // Memanggil fungsi fetch Satuan
-      setVendorList(data);
+      if (filter === "active") {
+        const data: VendorAktif[] = await fetchVendorDataAktif();
+        console.log("Data aktif:", data);
+        setVendorList(data);
+      } else {
+        const data: Vendor[] = await fetchVendorData();
+        console.log("Data semua:", data);
+        setVendorList(data);
+      }
     } catch (err: any) {
       const errorMessage = err.message || "Terjadi kesalahan yang tidak diketahui.";
       setError(errorMessage);
@@ -37,7 +43,7 @@ export default function VendorPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [filter]);
 
  const renderBadanHukumBadge = (status: BadanHukum | string) => {
   return (
@@ -56,6 +62,9 @@ export default function VendorPage() {
   );
 };
 
+const toggleFilter = () => {
+        setFilter(prev => (prev === "all" ? "active" : "all"));
+    };
 
   return (
     <>
@@ -68,21 +77,30 @@ export default function VendorPage() {
                 <Button size="sm" variant="primary">
                     Tambah Vendor Baru
                 </Button>
+                <Button
+                    size="sm"
+                    variant={filter === 'active' ? 'primary' : 'outline'}
+                    onClick={toggleFilter}
+                    >
+                    {filter === 'all' ? 'Tampilkan Aktif' : 'Tampilkan Semua'}
+                </Button>
             </div>
 
-          {loading ? (
-            <p className="p-4 text-center text-gray-500 dark:text-gray-400">Memuat data satuan dari server...</p>
-          ) : error ? (
-            <div className="p-4 bg-error-50 border border-error-500 rounded-lg dark:bg-error-500/15">
-                <p className="font-medium text-error-600 dark:text-error-500">Koneksi Gagal!</p>
-                <p className="text-sm text-error-500 dark:text-error-400">**{error}**</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Pastikan **Node.js API Server** Anda berjalan dan endpoint `/api/v1/satuan` berfungsi.</p>
-            </div>
-          ) : (
+          {loading && <p className="text-center py-10 text-gray-500 dark:text-gray-400">Memuat data barang...</p>}
+
+          {!loading && error && (
+               <div className="p-4 bg-error-50 border border-error-500 rounded-lg dark:bg-error-500/15">
+                   <p className="font-semibold text-error-700 dark:text-error-400">Gagal Memuat Data</p>
+                   <p className="text-sm text-error-600 dark:text-error-500 mt-1">{error}</p>
+                   <Button size="sm" variant="outline" onClick={loadData} className="mt-3">Coba Lagi</Button>
+               </div>
+          )} 
+          {!loading && !error && (
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
               <div className="max-w-full overflow-x-auto">
                 <Table className="w-full">
                   <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50 dark:bg-white/[0.03]">
+                    {filter == "all" ? (
                     <TableRow>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Vendor</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Vendor</TableCell>
@@ -90,9 +108,33 @@ export default function VendorPage() {
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
                     </TableRow>
+                    ) : (
+                    <TableRow>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Vendor</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Vendor</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Badan Hukum</TableCell>
+                    </TableRow>
+                    )}
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                    {vendorList.map((item) => (
+                    {vendorList.length === 0 ? (
+                      <TableRow className="hover:bg-gray-50 dark:hover:bg-white/5">
+                          <TableCell
+                              colSpan={filter === "active" ? 2 : 4}
+                              className="px-5 py-6 text-center text-gray-500 dark:text-gray-400"
+                          >
+                              Tidak ada data barang.
+                          </TableCell>
+                      </TableRow>
+                    ) : (
+                      vendorList.map((item: any) =>
+                        filter === "active" ? (
+                          <TableRow key={item.idvendor} className="hover:bg-gray-50 dark:hover:bg-white/5">
+                        <TableCell className="px-5 py-4 text-sm">{item.idvendor}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_vendor}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{renderBadanHukumBadge(item.badan_hukum)}</TableCell>
+                          </TableRow>
+                        ) : (
                       <TableRow key={item.idvendor} className="hover:bg-gray-50 dark:hover:bg-white/5">
                         <TableCell className="px-5 py-4 text-sm">{item.idvendor}</TableCell>
                         <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_vendor}</TableCell>
@@ -121,7 +163,9 @@ export default function VendorPage() {
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                           )
+                        )
+                    )}
                   </TableBody>
                 </Table>
               </div>

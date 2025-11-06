@@ -101,7 +101,7 @@ export default function PengadaanPage() {
                     {pengadaanList.map((item) => (
                       <TableRow key={item.idpengadaan} className="hover:bg-gray-50 dark:hover:bg-white/5">
                         <TableCell className="px-5 py-4 text-sm">{item.idpengadaan}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm">{item.timestamp}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.tanggal_pengadaan}</TableCell>
                         <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_user}</TableCell>
                         <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_vendor}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.subtotal_nilai}</TableCell>

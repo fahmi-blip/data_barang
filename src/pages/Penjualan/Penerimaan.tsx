@@ -84,7 +84,7 @@ export default function PenerimaanPage() {
                     <TableRow>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Penerimaan</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Creat_at</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama User</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Vendor</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Diterima oleh</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
@@ -94,9 +94,9 @@ export default function PenerimaanPage() {
                     {penerimaanList.map((item) => (
                       <TableRow key={item.idpenerimaan} className="hover:bg-gray-50 dark:hover:bg-white/5">
                         <TableCell className="px-5 py-4 text-sm">{item.idpenerimaan}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm">{item.created_at}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.tanggal_penerimaan}</TableCell>
                         <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_vendor}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.diterima_oleh}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_user}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{renderStatusBadge(item.status)}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">
                             <div className="flex justify-center items-center space-x-2">

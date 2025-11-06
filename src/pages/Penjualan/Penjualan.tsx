@@ -87,12 +87,12 @@ export default function PenjualanPage() {
                     {penjualanList.map((item) => (
                       <TableRow key={item.idpenjualan} className="hover:bg-gray-50 dark:hover:bg-white/5">
                         <TableCell className="px-5 py-4 text-sm">{item.idpenjualan}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm">{item.created_at}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.tanggal_penjualan}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.subtotal_nilai}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.ppn}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.total_nilai}</TableCell>
                         <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_user}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm">{item.margin}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.margin_penjualan}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">
                             <div className="flex justify-center items-center space-x-2">
                               {/* <Button

@@ -1,9 +1,12 @@
 // src/services/MasterDataService.ts - Service untuk mengambil data dari Node.js API
 
-import { ViewBarang, ViewPengadaan, ViewPenerimaan, ViewPenjualan,
-     Role, User, ViewDetailPengadaan, MarginPenjualan,
-     ViewDetailPenerimaan, ViewDetailPenjualan} from '../types/data';
-import { Satuan, Vendor, Barang} from '../types/db';
+import { ViewBarang, ViewBarangAktif,ViewPengadaan, ViewPenerimaan, ViewPenjualan,
+     Role, User, ViewDetailPengadaan, MarginPenjualan, MarginPenjualanAktif,
+     ViewDetailPenerimaan, ViewDetailPenjualan,
+     PengadaanSPBody, NewDetailPenerimaanBody,
+     SatuanAktif,
+     VendorAktif,Vendor} from '../types/data';
+import { Satuan, Barang} from '../types/db';
 
 // >>> GANTI URL INI <<<
 // Pastikan URL ini sesuai dengan port tempat server Node.js Anda berjalan (misal: 8000)
@@ -12,25 +15,25 @@ const API_BASE_URL = 'http://localhost:8000/api/v1';
 /**
  * Mengambil semua data barang dari API Node.js/Express.
  */
-export async function fetchBarangData(): Promise<ViewBarang[]> {
-    const response = await fetch(`${API_BASE_URL}/barang`);
-    
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({}));
-      throw new Error(errorBody.message || `Gagal mengambil data: HTTP Status ${response.status}`);
-    }
-    
+// Ambil semua data barang
+export async function fetchBarangAllData(): Promise<ViewBarang[]> {
+    const response = await fetch(`${API_BASE_URL}/barang/all`);
+    if (!response.ok) throw new Error(`Gagal mengambil semua data barang`);
     const result = await response.json();
-    // Asumsikan API Node.js mengembalikan format { status: 'success', data: [...] }
-    if (result.data) {
-        return result.data as ViewBarang[];
-    }
-    return [];
+    return result.data || [];
+}
 
-  }
+// Ambil hanya data barang aktif
+export async function fetchBarangActiveData(): Promise<ViewBarangAktif[]> {
+    const response = await fetch(`${API_BASE_URL}/barang/active`);
+    if (!response.ok) throw new Error(`Gagal mengambil data barang aktif`);
+    const result = await response.json();
+    return result.data || [];
+}
+
 
 export async function fetchSatuanData(): Promise<Satuan[]> {
-    const response = await fetch(`${API_BASE_URL}/satuan`);
+    const response = await fetch(`${API_BASE_URL}/satuan/all`);
     
     if (!response.ok) {
       const errorBody = await response.json().catch(() => ({}));
@@ -52,9 +55,32 @@ export async function fetchSatuanData(): Promise<Satuan[]> {
     }
     throw new Error("Format respons API Satuan tidak valid. Properti 'data' (array) tidak ditemukan.");
   } 
+export async function fetchSatuanDataAktif(): Promise<SatuanAktif[]> {
+    const response = await fetch(`${API_BASE_URL}/satuan/active`);
+    
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.message || `Gagal mengambil data: HTTP Status ${response.status}`);
+    }
+    
+    const result = await response.json();
+
+    if (result && Array.isArray(result.data)) {
+        if (result.data.length === 0) {
+            console.warn("API berhasil dihubungi, namun array data Satuan kosong.");
+            return [];
+        }
+        const normalizedData = result.data.map((item: any) => ({
+        ...item,
+        status: Number(item.status ?? item.STATUS),
+      }));
+      return normalizedData as SatuanAktif[];
+    }
+    throw new Error("Format respons API Satuan tidak valid. Properti 'data' (array) tidak ditemukan.");
+  } 
 
 export async function fetchVendorData(): Promise<Vendor[]> {
-    const response = await fetch(`${API_BASE_URL}/vendor`);
+    const response = await fetch(`${API_BASE_URL}/vendor/all`);
     
     if (!response.ok) {
       const errorBody = await response.json().catch(() => ({}));
@@ -73,6 +99,30 @@ export async function fetchVendorData(): Promise<Vendor[]> {
         status: Number(item.status ?? item.STATUS),
       }));
       return normalizedData as Vendor[];
+    }
+    
+    throw new Error("Format respons API Vendor tidak valid. Properti 'data' (array) tidak ditemukan.");
+}
+export async function fetchVendorDataAktif(): Promise<VendorAktif[]> {
+    const response = await fetch(`${API_BASE_URL}/vendor/active`);
+    
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.message || `Gagal mengambil data: HTTP Status ${response.status}`);
+    }
+    
+    const result = await response.json();
+
+    if (result && Array.isArray(result.data)) {
+        if (result.data.length === 0) {
+            console.warn("API berhasil dihubungi, namun array data Satuan kosong.");
+            return [];
+        }
+        const normalizedData = result.data.map((item: any) => ({
+        ...item,
+        status: Number(item.status ?? item.STATUS),
+      }));
+      return normalizedData as VendorAktif[];
     }
     
     throw new Error("Format respons API Vendor tidak valid. Properti 'data' (array) tidak ditemukan.");
@@ -157,7 +207,7 @@ export async function fetchUserData(): Promise<User[]> {
     return [];
 }
 export async function fetchMarginPenjualan(): Promise<MarginPenjualan[]> {
-    const response = await fetch(`${API_BASE_URL}/margin`);
+    const response = await fetch(`${API_BASE_URL}/margin/all`);
     
     if (!response.ok) {
       const errorBody = await response.json().catch(() => ({}));
@@ -171,6 +221,24 @@ export async function fetchMarginPenjualan(): Promise<MarginPenjualan[]> {
             status: Number(item.status ?? item.STATUS), // Konversi status ke angka
         }));
         return normalizedData as MarginPenjualan[];
+    }
+    return [];
+}
+export async function fetchMarginPenjualanAktif(): Promise<MarginPenjualanAktif[]> {
+    const response = await fetch(`${API_BASE_URL}/margin/active`);
+    
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.message || `Gagal mengambil data: HTTP Status ${response.status}`);
+    }
+    
+     const result = await response.json();
+    if (result && Array.isArray(result.data)) {
+        const normalizedData = result.data.map((item: any) => ({
+            ...item,
+            status: Number(item.status ?? item.STATUS), // Konversi status ke angka
+        }));
+        return normalizedData as MarginPenjualanAktif[];
     }
     return [];
 }
@@ -247,14 +315,25 @@ export async function deleteBarangData(id: number): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/barang/${id}`, {
         method: 'DELETE',
     });
-    // Tidak perlu return value, cukup pastikan tidak error
     await handleResponse<void>(response); // Akan throw error jika gagal
 }
 
 export async function fetchSatuanOptions(): Promise<Pick<Satuan, 'idsatuan' | 'nama_satuan'>[]> {
-    const response = await fetch(`${API_BASE_URL}/satuan`);
-    // API hanya mengembalikan idsatuan dan nama_satuan yang aktif
+    const response = await fetch(`${API_BASE_URL}/satuan/active`);
     return handleResponse<Pick<Satuan, 'idsatuan' | 'nama_satuan'>[]>(response);
+}
+export async function addPengadaanData(data: PengadaanSPBody): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/pengadaan`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+    
+    const result = await response.json();
+    if (!response.ok) {
+        throw new Error(result.message || `Gagal menyimpan data: HTTP Status ${response.status}`);
+    }
+    return result; // Kembalikan data (termasuk ID baru)
 }
 
 export async function fetchDetailPengadaanData(): Promise<ViewDetailPengadaan[]> {
@@ -284,6 +363,19 @@ export async function fetchDetailPenerimaanData(): Promise<ViewDetailPenerimaan[
         return result.data as ViewDetailPenerimaan[];
     }
     return [];
+}
+export async function addDetailPenerimaanData(data: NewDetailPenerimaanBody): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/penerimaan/detail`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+    
+    const result = await response.json();
+    if (!response.ok) {
+        throw new Error(result.message || `Gagal menyimpan item: HTTP Status ${response.status}`);
+    }
+    return result;
 }
 export async function fetchDetailPenjualanData(): Promise<ViewDetailPenjualan[]> {
     const response = await fetch(`${API_BASE_URL}/penjualan/detail`); // Anda perlu buat endpoint ini di server.js

@@ -11,23 +11,28 @@ import { useNavigate } from "react-router-dom";
 import { PlusIcon } from "../../icons"; 
 import { PencilIcon, TrashBinIcon} from "../../icons";
 // Import tipe data dan service
-import { MarginPenjualan} from "../../types/data";
+import { MarginPenjualan, MarginPenjualanAktif} from "../../types/data";
 import { StatusToko } from "../../types/data.d";
-import { fetchMarginPenjualan } from "../../services/DataMasterServices"; // Menggunakan fungsi baru
+import { fetchMarginPenjualan, fetchMarginPenjualanAktif } from "../../services/DataMasterServices"; // Menggunakan fungsi baru
 
 export default function MarginPenjualanPage() {
   // const navigate = useNavigate();
-  const [marginPenjualanList, setMarginPenjualanList] = useState<MarginPenjualan[]>([]);
+  const [marginPenjualanList, setMarginPenjualanList] = useState<(MarginPenjualan | MarginPenjualanAktif)[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"all" | "active">("all");
 
   const loadData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchMarginPenjualan();
-       console.log("🔍 Data dari API:", data); // Memanggil fungsi fetch Satuan
-      setMarginPenjualanList(data);
+      if (filter === "active") {
+        const data: MarginPenjualanAktif[] = await fetchMarginPenjualanAktif();
+        setMarginPenjualanList(data);
+      } else {
+        const data: MarginPenjualan[] = await fetchMarginPenjualan();
+        setMarginPenjualanList(data);
+      }
     } catch (err: any) {
       const errorMessage = err.message || "Terjadi kesalahan yang tidak diketahui.";
       setError(errorMessage);
@@ -39,7 +44,7 @@ export default function MarginPenjualanPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [filter]);
 
 const renderStatusBadge = (status: StatusToko) => {
     const isActive = Number(status) === 1;
@@ -50,6 +55,9 @@ const renderStatusBadge = (status: StatusToko) => {
     );
 };
 
+const toggleFilter = () => {
+        setFilter(prev => (prev === "all" ? "active" : "all"));
+    };
 
   return (
     <>
@@ -58,37 +66,77 @@ const renderStatusBadge = (status: StatusToko) => {
       
       <div className="space-y-6">
         <ComponentCard title="Daftar Margin Penjualan">
-          {loading ? (
-            <p className="p-4 text-center text-gray-500 dark:text-gray-400">Memuat data satuan dari server...</p>
-          ) : error ? (
-            <div className="p-4 bg-error-50 border border-error-500 rounded-lg dark:bg-error-500/15">
-                <p className="font-medium text-error-600 dark:text-error-500">Koneksi Gagal!</p>
-                <p className="text-sm text-error-500 dark:text-error-400">**{error}**</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Pastikan **Node.js API Server** Anda berjalan dan endpoint `/api/v1/satuan` berfungsi.</p>
+          <div className="flex justify-end mb-4">
+                <Button size="sm" variant="primary">
+                    Tambah Satuan Baru
+                </Button>
+                <Button
+                    size="sm"
+                    variant={filter === 'active' ? 'primary' : 'outline'}
+                    onClick={toggleFilter}
+                    >
+                    {filter === 'active' ? 'Tampilkan Semua' : 'Tampilkan Aktif'}
+                </Button>
             </div>
-          ) : (
+          {loading && <p className="text-center py-10 text-gray-500 dark:text-gray-400">Memuat data barang...</p>}
+
+          {!loading && error && (
+               <div className="p-4 bg-error-50 border border-error-500 rounded-lg dark:bg-error-500/15">
+                   <p className="font-semibold text-error-700 dark:text-error-400">Gagal Memuat Data</p>
+                   <p className="text-sm text-error-600 dark:text-error-500 mt-1">{error}</p>
+                   <Button size="sm" variant="outline" onClick={loadData} className="mt-3">Coba Lagi</Button>
+               </div>
+          )} 
+          {!loading && !error && (
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
               <div className="max-w-full overflow-x-auto">
                 <Table className="w-full">
                   <TableHeader className="border-b border-gray-100 bg-white dark:border-white/[0.05] dark:bg-gray-800">
+                    {filter == "all" ? (
                     <TableRow>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Margin</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Creat At</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Persen</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID User</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">User</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Update At</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
                     </TableRow>
+                    ) : (
+                    <TableRow>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Margin</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Persen</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Dibuat Oleh</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Update at</TableCell> 
+                  </TableRow>
+                    )}
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                    {marginPenjualanList.map((item) => (
+                    {marginPenjualanList.length === 0 ? (
+                      <TableRow className="hover:bg-gray-50 dark:hover:bg-white/5">
+                          <TableCell
+                              colSpan={filter === "active" ? 2 : 4}
+                              className="px-5 py-6 text-center text-gray-500 dark:text-gray-400"
+                          >
+                              Tidak ada data barang.
+                          </TableCell>
+                      </TableRow>
+                    ) : (
+                      marginPenjualanList.map((item: any) =>
+                        filter === "active" ? (
+                          <TableRow key={item.idmargin_penjualan} className="hover:bg-gray-50 dark:hover:bg-white/5">
+                        <TableCell className="px-5 py-4 text-sm">{item.idmargin_penjualan}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.persen}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.dibuat_oleh}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.update_at}</TableCell>
+                          </TableRow>
+                        ) : (
                       <TableRow key={item.idmargin_penjualan} className="hover:bg-gray-50 dark:hover:bg-white/5">
                         <TableCell className="px-5 py-4 text-sm">{item.idmargin_penjualan}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.created_at}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.persen}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{renderStatusBadge(item.status)}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm">{item.iduser}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{item.dibuat_oleh}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.update_at}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">
                             <div className="flex justify-center items-center space-x-2">
@@ -113,7 +161,9 @@ const renderStatusBadge = (status: StatusToko) => {
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                        )
+                      )
+                    )}
                   </TableBody>
                 </Table>
               </div>

@@ -18,6 +18,7 @@ import EditBarangPage from "./pages/master/EditBarang";
 import SatuanPage from "./pages/master/Satuan";
 import VendorPage from "./pages/master/Vendor";
 import PengadaanPage from "./pages/Penjualan/Pengadaan";
+import TambahPengadaanPage from "./pages/Penjualan/TambahPengadaan";
 import DetailPengadaanPage from "./pages/Penjualan/DetailPengadaan";
 import PenerimaanPage from "./pages/Penjualan/Penerimaan";
 import DetailPenerimaanPage from "./pages/Penjualan/DetailPenerimaan";
@@ -55,6 +56,7 @@ export default function App() {
 
             {/* Tambahkan rute untuk Transaksi (Ganti <Blank /> dengan komponen Anda) */}
             <Route path="/pengadaan" element={<PengadaanPage />} />
+            <Route path="/pengadaan/tambah" element={<TambahPengadaanPage />} />
             <Route path="/pengadaan/detail" element={<DetailPengadaanPage />} />
             <Route path="/penerimaan" element={<PenerimaanPage />} />
             <Route path="/penerimaan/detail" element={<DetailPenerimaanPage />} />

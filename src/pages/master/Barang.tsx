@@ -13,11 +13,12 @@ import Button from "../../components/ui/button/Button";
 // import Input from "../../components/form/input/InputField";
 // import Select from "../../components/form/Select";
 import { PlusIcon, PencilIcon, TrashBinIcon } from "../../icons"; // <-- Pastikan ikon diimpor
-import { ViewBarang, StatusToko } from "../../types/data";
+import { ViewBarang,ViewBarangAktif, StatusToko } from "../../types/data";
 // import { Barang} from "../../types/db"; // <-- Ganti impor ke data.d.ts jika perlu
 import {
-    fetchBarangData,
-    deleteBarangData
+    fetchBarangAllData,
+    fetchBarangActiveData,
+    deleteBarangData,
     // fetchSingleBarangData,
     // updateBarangData,
     // fetchSatuanOptions // <-- Ganti nama fungsi
@@ -146,9 +147,10 @@ import {
 
 export default function BarangPage() {
     const navigate = useNavigate();
-    const [barangList, setBarangList] = useState<ViewBarang[]>([]);
+    const [barangList, setBarangList] = useState<(ViewBarang | ViewBarangAktif ) []>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [filter, setFilter] = useState<'all' | 'active'>('all');
 
     // const { isOpen: isEditModalOpen, openModal: openEditModal, closeModal: closeEditModal } = useModal();
     // const [editingBarang, setEditingBarang] = useState<Barang | null>(null);
@@ -168,17 +170,14 @@ export default function BarangPage() {
         setError(null);
         // setSatuanOptions([]); // Kosongkan dulu
         try {
-            const [barangData /*satuanData*/] = await Promise.all([
-                fetchBarangData()
-                // fetchSatuanOptions()
-            ]);
-            setBarangList(barangData);
-            // const options = satuanData.map(s => ({ value: String(s.idsatuan), label: s.nama_satuan }));
-            // setSatuanOptions(options);
-            //  if (options.length === 0) {
-            //      // Beri peringatan jika satuan kosong, tapi jangan error utama
-            //      console.warn("Tidak ada data satuan aktif yang bisa dimuat untuk dropdown.");
-            // }
+            if (filter === 'active') {
+                const data: ViewBarangAktif[] = await fetchBarangActiveData();
+                setBarangList(data);
+            } else {
+                const data: ViewBarang[] = await fetchBarangAllData();
+                setBarangList(data);
+            }
+            
         } catch (err: any) {
             setError(err.message || "Terjadi kesalahan saat memuat data.");
             console.error("Load Data Error:", err);
@@ -190,86 +189,7 @@ export default function BarangPage() {
 
     useEffect(() => {
         loadData();
-    }, []);
-
-    // const handleEditClick = async (idbarang: number) => {
-    //     setModalError(null);
-    //     setEditingBarang(null); // Reset state editing
-    //     setLoadingEditData(true); // Mulai loading data edit
-    //     openEditModal(); // Buka modal
-
-    //     // Cek lagi apakah opsi satuan sudah ada
-    //     if (satuanOptions.length === 0 && !loading) {
-    //         setModalError("Data satuan belum dimuat. Coba muat ulang halaman.");
-    //         setLoadingEditData(false);
-    //         return; // Jangan lanjutkan fetch jika satuan belum ada
-    //     }
-
-    //     try {
-    //         const dataBarang = await fetchSingleBarangData(idbarang);
-    //         setEditingBarang(dataBarang);
-    //     } catch (err: any) {
-    //         setModalError(`Gagal memuat detail barang (ID: ${idbarang}): ${err.message || "Error tidak diketahui"}`);
-    //         console.error("Fetch Single Barang Error:", err);
-    //     } finally {
-    //          setLoadingEditData(false); // Selesai loading data edit
-    //     }
-    // };
-
-    // const handleUpdateBarang = async (updatedData: Omit<Barang, 'idbarang' | 'nama_satuan'>) => {
-    //     if (!editingBarang) return;
-
-    //     setIsSaving(true);
-    //     setModalError(null); // Reset modal error sebelum mencoba menyimpan
-
-    //     try {
-    //         await updateBarangData(editingBarang.idbarang, updatedData);
-    //         closeEditModal();
-    //         alert('Barang berhasil diperbarui!');
-    //         loadData(); // Reload data tabel setelah update
-    //     } catch (err: any) {
-    //          setModalError(err.message || 'Gagal memperbarui barang.');
-    //          console.error("Update Barang Error:", err);
-    //     } finally {
-    //         setIsSaving(false);
-    //     }
-    // };
-
-    // const handleDeleteClick = (idbarang: number, namaBarang: string) => {
-    //     setDeletingId(idbarang);
-    //     setDeletingNama(namaBarang); // Simpan nama untuk konfirmasi
-    //     setDeleteError(null);
-    //     openDeleteModal();
-    // };
-
-    // const handleConfirmDelete = async () => {
-    //     if (!deletingId) return;
-    //     setIsDeleting(true);
-    //     setDeleteError(null);
-
-    //     try {
-    //         await deleteBarangData(deletingId);
-    //         closeDeleteModal();
-    //         alert(`Barang "${deletingNama}" berhasil dihapus!`);
-    //         loadData();
-    //     } catch (err: any) {
-    //         setDeleteError(err.message || "Gagal menghapus barang.");
-    //         console.error("Delete Barang Error:", err);
-    //         // Jangan tutup modal jika error
-    //     } finally {
-    //         setIsDeleting(false);
-    //         // Tidak perlu reset deletingId di sini, akan direset saat modal ditutup atau berhasil
-    //     }
-    // };
-
-    // const handleCloseDeleteModal = () => {
-    //     closeDeleteModal();
-    //     // Reset state hanya jika modal ditutup secara manual (bukan karena error)
-    //     if (!deleteError) {
-    //          setDeletingId(null);
-    //          setDeletingNama('');
-    //     }
-    // }
+    }, [filter]);
 
     const renderStatusBadge = (status: StatusToko) => (
         <Badge size="sm" color={status === 1 ? "success" : "error"}>
@@ -288,6 +208,9 @@ export default function BarangPage() {
     }
 };
 
+ const toggleFilter = () => {
+        setFilter(prev => (prev === "all" ? "active" : "all"));
+    };
 
     return (
         <>
@@ -296,14 +219,20 @@ export default function BarangPage() {
 
             <div className="space-y-6">
                 <ComponentCard title="Daftar Barang">
-                    <div className="flex justify-end mb-4">
+                    <div className="flex justify-end mb-4  ">
                         <Button
                             size="sm"
                             variant="primary"
-                            onClick={() => navigate('/barang/tambah')}
-                        >
+                            onClick={() => navigate('/barang/tambah')}>
                             Tambah Barang Baru
                         </Button>
+                        <Button
+                            size="sm"
+                            variant={filter === 'active' ? 'primary' : 'outline'}
+                            onClick={toggleFilter} >
+                            {filter === 'active' ? 'Tampilkan Semua' : 'Tampilkan Aktif'}
+                        </Button>
+                        
                     </div>
 
                     {loading && <p className="text-center py-10 text-gray-500 dark:text-gray-400">Memuat data barang...</p>}
@@ -320,55 +249,75 @@ export default function BarangPage() {
                         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                             <div className="max-w-full overflow-x-auto">
                                 <Table className="w-full">
-                                    <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50 dark:bg-gray-800">
-                                        <TableRow>
-                                            <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID</TableCell>
-                                            <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Barang</TableCell>
-                                            <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Jenis</TableCell>
-                                            <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Satuan</TableCell>
-                                            <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
-                                            <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400 text-center">Aksi</TableCell>
-                                        </TableRow>
+                                    <TableHeader className="border-b border-gray-100 bg-white dark:border-white/[0.05] dark:bg-gray-800">
+                                        {filter === "all" ? (
+                                            <TableRow>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID</TableCell>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Barang</TableCell>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Jenis</TableCell>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Satuan</TableCell>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID</TableCell>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Barang</TableCell>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Satuan</TableCell>
+                                            </TableRow>
+                                        )}
                                     </TableHeader>
+
                                     <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                                         {barangList.length === 0 ? (
-                                             <TableRow>
-                                                <TableCell  className="px-5 py-6 text-center text-gray-500 dark:text-gray-400 col-span-6" >
-                                                    Belum ada data barang.
+                                            <TableRow className="hover:bg-gray-50 dark:hover:bg-white/5">
+                                                <TableCell
+                                                    colSpan={filter === "active" ? 3 : 6}
+                                                    className="px-5 py-6 text-center text-gray-500 dark:text-gray-400"
+                                                >
+                                                    Tidak ada data barang.
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
-                                            barangList.map((item) => (
-                                            <TableRow key={item.idbarang} className="hover:bg-gray-50 dark:hover:bg-white/5">
-                                                <TableCell className="px-5 py-4 text-sm">{item.idbarang}</TableCell>
-                                                <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_barang}</TableCell>
-                                                <TableCell className="px-5 py-4 text-sm">{item.jenis === 'B' ? 'Barang' : 'Jasa'}</TableCell>
-                                                <TableCell className="px-5 py-4 text-sm">{item.nama_satuan || '-'}</TableCell> {/* Handle jika nama_satuan null */}
-                                                <TableCell className="px-5 py-4 text-sm">{renderStatusBadge(item.status)}</TableCell>
-                                                <TableCell className="px-5 py-4 text-sm">
-                                                    <div className="flex justify-center items-center space-x-2">
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            className="text-xs !p-1.5" // Ukuran lebih kecil
-                                                            onClick={() => navigate(`/barang/edit/${item.idbarang}`)}
-                                                        >
-                                                             <PencilIcon className="size-4"/>
-                                                             <span className="sr-only">Edit {item.nama_barang}</span>
-                                                        </Button>
-                                                         <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            className="text-xs !p-1.5 text-error-600 border-error-300 hover:bg-error-50 hover:border-error-500 dark:border-error-500/30 dark:hover:bg-error-500/10 dark:text-error-400"
-                                                            onClick={() => handleDelete(item.idbarang, item.nama_barang)}
-                                                         >
-                                                             <TrashBinIcon className="size-4"/>
-                                                             <span className="sr-only">Hapus {item.nama_barang}</span>
-                                                         </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                            ))
+                                            barangList.map((item: any) =>
+                                                filter === "active" ? (
+                                                    // 🔹 Tampilan tabel untuk barang aktif saja
+                                                    <TableRow key={item.idbarang} className="hover:bg-gray-50 dark:hover:bg-white/5">
+                                                        <TableCell className="px-5 py-4 text-sm">{item.idbarang}</TableCell>
+                                                        <TableCell className="px-5 py-4 text-sm">{item.nama}</TableCell>
+                                                        <TableCell className="px-5 py-4 text-sm">{item.nama_satuan || "-"}</TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    // 🔹 Tampilan tabel lengkap (semua barang)
+                                                    <TableRow key={item.idbarang} className="hover:bg-gray-50 dark:hover:bg-white/5">
+                                                        <TableCell className="px-5 py-4 text-sm">{item.idbarang}</TableCell>
+                                                        <TableCell className="px-5 py-4 text-sm">{item.nama}</TableCell>
+                                                        <TableCell className="px-5 py-4 text-sm">{item.jenis === "B" ? "Barang" : "Jasa"}</TableCell>
+                                                        <TableCell className="px-5 py-4 text-sm">{item.nama_satuan || "-"}</TableCell>
+                                                        <TableCell className="px-5 py-4 text-sm">{renderStatusBadge(item.status)}</TableCell>
+                                                        <TableCell className="px-5 py-4 text-sm">
+                                                            <div className="flex justify-center gap-2">
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    className="!p-1.5"
+                                                                    onClick={() => navigate(`/barang/edit/${item.idbarang}`)}
+                                                                >
+                                                                    <PencilIcon className="size-4" />
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    className="!p-1.5 text-error-600 border-error-300 hover:bg-error-50"
+                                                                    onClick={() => handleDelete(item.idbarang, item.nama)}
+                                                                >
+                                                                    <TrashBinIcon className="size-4" />
+                                                                </Button>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            )
                                         )}
                                     </TableBody>
                                 </Table>
