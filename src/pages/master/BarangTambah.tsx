@@ -103,7 +103,6 @@ export default function BarangTambah() {
                             </option>
                         ))}
                     </select>
-                     {/* Tampilkan pesan jika satuan kosong dan tidak error */}
                     { !loadingSatuan && !fetchSatuanError && satuanOptions.length === 0 &&
                         <p className="text-xs text-yellow-600 mt-1">Tidak ada satuan aktif.</p>
                     }

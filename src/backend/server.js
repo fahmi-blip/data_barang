@@ -126,9 +126,9 @@ app.put('/api/v1/barang/:id', async (req, res) => {
          if (!nama || !jenis || idsatuan === undefined || idsatuan === null || status === undefined || status === null) {
             return res.status(400).json({ status: 'fail', message: 'Semua field (nama, jenis, idsatuan, status) wajib diisi.' });
         }
-        if (jenis !== 'B' && jenis !== 'J') { /* ... */ }
-        if (status !== 0 && status !== 1) { /* ... */ }
-        if (isNaN(parseInt(idsatuan))) { /* ... */ }
+        if (jenis !== 'B') 
+        if (status !== 0 && status !== 1) 
+        if (isNaN(parseInt(idsatuan))) 
 
         connection = await getConnection();
          const [satuanCheck] = await connection.execute('SELECT idsatuan FROM satuan WHERE idsatuan = ?', [idsatuan]);

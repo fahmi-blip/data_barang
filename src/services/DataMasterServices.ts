@@ -293,7 +293,7 @@ export async function fetchSingleBarangData(id: number): Promise<Barang> {
 }
 
 export async function addBarangData(barangData: Omit<Barang, 'idbarang' | 'nama_satuan'>): Promise<ViewBarang> {
-    const response = await fetch(`${API_BASE_URL}/barang`, {
+    const response = await fetch(`${API_BASE_URL}/barang}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(barangData),
