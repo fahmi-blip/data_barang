@@ -3,7 +3,6 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
-
 const app = express();
 const port = 8000; 
 
@@ -30,29 +29,38 @@ async function getConnection() {
 
 app.get('/api/v1/barang/all', async (req, res) => {
     let connection;
-    
+    try {
         connection = await mysql.createConnection(dbConfig);
-        
-        const [rows] = await connection.execute('SELECT * FROM view_barang ');
-        
+        const [rows] = await connection.execute('SELECT * FROM view_barang');
         res.status(200).json({
             status: 'success',
             message: 'Data barang berhasil diambil',
             data: rows
         });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ status: 'error', message: 'Gagal mengambil data', error: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
 });
+
 app.get('/api/v1/barang/active', async (req, res) => {
     let connection;
-    
+    try {
         connection = await mysql.createConnection(dbConfig);
-        
         const [rows] = await connection.execute('SELECT * FROM view_barang_aktif');
-        
         res.status(200).json({
             status: 'success',
-            message: 'Data barang berhasil diambil',
+            message: 'Data barang aktif berhasil diambil',
             data: rows
         });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ status: 'error', message: 'Gagal mengambil data', error: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
 });
 
 app.get('/api/v1/barang/:id', async (req, res) => {
@@ -60,10 +68,13 @@ app.get('/api/v1/barang/:id', async (req, res) => {
     try {
         const { id } = req.params;
         if (isNaN(parseInt(id))) {
-             return res.status(400).json({ status: 'fail', message: 'ID barang tidak valid' });
+            return res.status(400).json({ status: 'fail', message: 'ID barang tidak valid' });
         }
-        connection = await getConnection();
-        const [rows] = await connection.execute('SELECT idbarang, nama, jenis, idsatuan, status FROM barang WHERE idbarang = ?', [id]);
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute(
+            'SELECT idbarang, nama, jenis, idsatuan, status FROM barang WHERE idbarang = ?',
+            [id]
+        );
         if (rows.length === 0) {
             return res.status(404).json({ status: 'fail', message: `Barang dengan ID ${id} tidak ditemukan` });
         }
@@ -80,22 +91,22 @@ app.post('/api/v1/barang', async (req, res) => {
     let connection;
     try {
         const { nama, jenis, idsatuan, status } = req.body;
-        
+
         if (!nama || !jenis || idsatuan === undefined || idsatuan === null || status === undefined || status === null) {
             return res.status(400).json({ status: 'fail', message: 'Semua field (nama, jenis, idsatuan, status) wajib diisi.' });
         }
         if (jenis !== 'B' && jenis !== 'J') {
-             return res.status(400).json({ status: 'fail', message: 'Nilai jenis tidak valid (harus B atau J).' });
+            return res.status(400).json({ status: 'fail', message: 'Nilai jenis tidak valid (harus B atau J).' });
         }
-         if (status !== 0 && status !== 1) {
-             return res.status(400).json({ status: 'fail', message: 'Nilai status tidak valid (harus 0 atau 1).' });
+        if (status !== 0 && status !== 1) {
+            return res.status(400).json({ status: 'fail', message: 'Nilai status tidak valid (harus 0 atau 1).' });
         }
-         if (isNaN(parseInt(idsatuan))) {
-             return res.status(400).json({ status: 'fail', message: 'ID Satuan tidak valid.' });
-         }
+        if (isNaN(parseInt(idsatuan))) {
+            return res.status(400).json({ status: 'fail', message: 'ID Satuan tidak valid.' });
+        }
 
-        connection = await getConnection();
-        
+        connection = await mysql.createConnection(dbConfig);
+
         const [satuanCheck] = await connection.execute('SELECT idsatuan FROM satuan WHERE idsatuan = ?', [idsatuan]);
         if (satuanCheck.length === 0) {
             return res.status(400).json({ status: 'fail', message: `Satuan dengan ID ${idsatuan} tidak ditemukan.` });
@@ -119,22 +130,14 @@ app.put('/api/v1/barang/:id', async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-         if (isNaN(parseInt(id))) {
-             return res.status(400).json({ status: 'fail', message: 'ID barang tidak valid' });
-        }
         const { nama, jenis, idsatuan, status } = req.body;
-         if (!nama || !jenis || idsatuan === undefined || idsatuan === null || status === undefined || status === null) {
-            return res.status(400).json({ status: 'fail', message: 'Semua field (nama, jenis, idsatuan, status) wajib diisi.' });
-        }
-        if (jenis !== 'B') 
-        if (status !== 0 && status !== 1) 
-        if (isNaN(parseInt(idsatuan))) 
 
-        connection = await getConnection();
-         const [satuanCheck] = await connection.execute('SELECT idsatuan FROM satuan WHERE idsatuan = ?', [idsatuan]);
-        if (satuanCheck.length === 0) {
-            return res.status(400).json({ status: 'fail', message: `Satuan dengan ID ${idsatuan} tidak ditemukan.` });
+        if (isNaN(parseInt(id))) {
+            return res.status(400).json({ status: 'fail', message: 'ID barang tidak valid' });
         }
+
+        connection = await mysql.createConnection(dbConfig);
+        if (!connection) throw new Error("Koneksi database gagal dibuat");
 
         const query = 'UPDATE barang SET nama = ?, jenis = ?, idsatuan = ?, status = ? WHERE idbarang = ?';
         const [result] = await connection.execute(query, [nama, jenis, idsatuan, status, id]);
@@ -142,11 +145,12 @@ app.put('/api/v1/barang/:id', async (req, res) => {
         if (result.affectedRows === 0) {
             return res.status(404).json({ status: 'fail', message: `Barang dengan ID ${id} tidak ditemukan` });
         }
+
         const [updatedData] = await connection.execute('SELECT * FROM view_barang WHERE idbarang = ?', [id]);
-        res.status(200).json({ status: 'success', message: `Barang ID ${id} berhasil diperbarui`, data: updatedData[0] });
+        res.status(200).json({ status: 'success', message: 'Barang berhasil diperbarui', data: updatedData[0] });
 
     } catch (error) {
-        console.error("Error updating barang:", error);
+        console.error("❌ Error updating barang:", error);
         res.status(500).json({ status: 'error', message: 'Gagal memperbarui barang', error: error.message });
     } finally {
         if (connection) await connection.end();
@@ -157,22 +161,22 @@ app.delete('/api/v1/barang/:id', async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-         if (isNaN(parseInt(id))) {
-             return res.status(400).json({ status: 'fail', message: 'ID barang tidak valid' });
+        if (isNaN(parseInt(id))) {
+            return res.status(400).json({ status: 'fail', message: 'ID barang tidak valid' });
         }
-        connection = await getConnection();
+        connection = await mysql.createConnection(dbConfig);
         const [check] = await connection.execute('SELECT idbarang FROM barang WHERE idbarang = ?', [id]);
         if (check.length === 0) {
-             return res.status(404).json({ status: 'fail', message: `Barang dengan ID ${id} tidak ditemukan` });
+            return res.status(404).json({ status: 'fail', message: `Barang dengan ID ${id} tidak ditemukan` });
         }
 
         const query = 'DELETE FROM barang WHERE idbarang = ?';
-        await connection.execute(query, [id]); 
+        await connection.execute(query, [id]);
         res.status(200).json({ status: 'success', message: `Barang ID ${id} berhasil dihapus`, data: null });
     } catch (error) {
         console.error("Error deleting barang:", error);
         if (error.code === 'ER_ROW_IS_REFERENCED_2') {
-             return res.status(400).json({ status: 'fail', message: 'Gagal menghapus: Barang ini sedang digunakan di data transaksi lain (misal: Pengadaan, Penjualan).' });
+            return res.status(400).json({ status: 'fail', message: 'Gagal menghapus: Barang ini sedang digunakan di data transaksi lain.' });
         }
         res.status(500).json({ status: 'error', message: 'Gagal menghapus barang', error: error.message });
     } finally {

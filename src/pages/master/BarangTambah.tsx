@@ -1,14 +1,20 @@
-import { useState, useEffect,FormEvent} from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { addBarangData, fetchSatuanOptions } from "../../services/DataMasterServices";
-import { StatusToko} from "../../types/data";
+import { StatusToko } from "../../types/data";
 import ComponentCard from "../../components/common/ComponentCard";
-import { Satuan } from "../../types/data";
+import PageMeta from "../../components/common/PageMeta";
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import Label from "../../components/form/Label";
+import Input from "../../components/form/input/InputField";
+import Select from "../../components/form/Select";
+import Button from "../../components/ui/button/Button";
 
 interface SelectOption {
     value: string;
     label: string;
 }
+
 export default function BarangTambah() {
     const navigate = useNavigate();
     const [nama, setNama] = useState("");
@@ -16,9 +22,9 @@ export default function BarangTambah() {
     const [idSatuan, setIdSatuan] = useState<string>("");
     const [status, setStatus] = useState<StatusToko>(1);
     const [loading, setLoading] = useState(false);
-    const [loadingSatuan, setLoadingSatuan] = useState(true); // State loading untuk satuan
-    const [satuanOptions, setSatuanOptions] = useState<SelectOption[]>([]); // State untuk menyimpan opsi satuan
-    const [formError, setFormError] = useState<string | null>(null); // State untuk error submit
+    const [loadingSatuan, setLoadingSatuan] = useState(true);
+    const [satuanOptions, setSatuanOptions] = useState<SelectOption[]>([]);
+    const [formError, setFormError] = useState<string | null>(null);
     const [fetchSatuanError, setFetchSatuanError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -26,15 +32,15 @@ export default function BarangTambah() {
             setLoadingSatuan(true);
             setFetchSatuanError(null);
             try {
-                const dataSatuan = await fetchSatuanOptions(); // Panggil service
+                const dataSatuan = await fetchSatuanOptions();
                 const options = dataSatuan.map(satuan => ({
-                    value: String(satuan.idsatuan), // Value tetap ID (dalam string)
-                    label: satuan.nama_satuan      // Label adalah nama
+                    value: String(satuan.idsatuan),
+                    label: satuan.nama_satuan
                 }));
                 setSatuanOptions(options);
-                 if (options.length === 0) {
-                     setFetchSatuanError("Tidak ada data satuan aktif yang tersedia.");
-                 }
+                if (options.length === 0) {
+                    setFetchSatuanError("Tidak ada data satuan aktif yang tersedia.");
+                }
             } catch (error: any) {
                 console.error("Gagal fetch satuan:", error);
                 setFetchSatuanError(error.message || "Gagal memuat opsi satuan.");
@@ -49,9 +55,23 @@ export default function BarangTambah() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setFormError(null);
+
+        if (!nama.trim()) {
+            setFormError("Nama barang wajib diisi.");
+            setLoading(false);
+            return;
+        }
+
+        if (!idSatuan) {
+            setFormError("Satuan wajib dipilih.");
+            setLoading(false);
+            return;
+        }
+
         try {
             await addBarangData({
-                nama,
+                nama: nama.trim(),
                 jenis,
                 idsatuan: Number(idSatuan),
                 status
@@ -60,74 +80,110 @@ export default function BarangTambah() {
             navigate("/barang");
         } catch (error: any) {
             console.error(error);
-            alert(error.message || "Gagal menambah barang");
+            setFormError(error.message || "Gagal menambah barang");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <ComponentCard title="Tambah Barang">
-        <form onSubmit={handleSubmit}>
+        <>
+            <PageMeta title="Tambah Barang" description="Halaman untuk menambah data barang baru." />
+            <PageBreadcrumb pageTitle="Tambah Barang Baru" />
+            
+            <ComponentCard title="Form Tambah Barang">
+                <form onSubmit={handleSubmit}>
+                    <div className="space-y-4">
+                        <div>
+                            <Label htmlFor="nama">Nama Barang</Label>
+                            <Input
+                                id="nama"
+                                type="text"
+                                value={nama}
+                                onChange={(e) => setNama(e.target.value)}
+                                placeholder="Masukkan nama barang"
+                                required
+                                disabled={loading}
+                                className="mt-1.5"
+                            />
+                        </div>
 
-            <div className="mb-3">
-                <label>Nama</label>
-                <input type="text" className="border p-2 w-full"
-                       onChange={(e) => setNama(e.target.value)}
-                       required />
-            </div>
+                        <div>
+                            <Label htmlFor="jenis">Jenis</Label>
+                            <Select
+                                id="jenis"
+                                options={[
+                                    { value: 'B', label: 'Barang' },
+                                    { value: 'J', label: 'Jasa' }
+                                ]}
+                                value={jenis}
+                                onChange={(value) => setJenis(value)}
+                                disabled={loading}
+                                className="dark:bg-gray-900 mt-1.5"
+                            />
+                        </div>
 
-            <div className="mb-3">
-                <label>Jenis</label>
-                <select className="border p-2 w-full"
-                        onChange={(e) => setJenis(e.target.value)}>
-                    <option value="B">Barang</option>
-                </select>
-            </div>
+                        <div>
+                            <Label htmlFor="satuan">Satuan</Label>
+                            <Select
+                                id="satuan"
+                                options={satuanOptions}
+                                value={idSatuan}
+                                onChange={(value) => setIdSatuan(value)}
+                                placeholder={loadingSatuan ? "Memuat satuan..." : "-- Pilih Satuan --"}
+                                required
+                                disabled={loading || loadingSatuan || !!fetchSatuanError || satuanOptions.length === 0}
+                                className="dark:bg-gray-900 mt-1.5"
+                            />
+                            {!loadingSatuan && !fetchSatuanError && satuanOptions.length === 0 && (
+                                <p className="text-xs text-yellow-600 mt-1">Tidak ada satuan aktif.</p>
+                            )}
+                            {fetchSatuanError && (
+                                <p className="text-xs text-error-600 mt-1">{fetchSatuanError}</p>
+                            )}
+                        </div>
 
-            <div className="mb-3">
-                    <label className="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-400">Satuan</label>
-                    <select
-                        className="border p-2 w-full  dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                        value={idSatuan} // Bind value (ID satuan)
-                        onChange={(e) => setIdSatuan(e.target.value)}
-                        required
-                        disabled={loading || loadingSatuan || !!fetchSatuanError || satuanOptions.length === 0} // Disable saat loading/error/kosong
-                    >
-                        <option value="" disabled>
-                            {loadingSatuan ? "Memuat satuan..." : "-- Pilih Satuan --"}
-                        </option>
-                        {satuanOptions.map(option => (
-                            <option key={option.value} value={option.value}>
-                                {option.label} {/* Tampilkan nama satuan */}
-                            </option>
-                        ))}
-                    </select>
-                    { !loadingSatuan && !fetchSatuanError && satuanOptions.length === 0 &&
-                        <p className="text-xs text-yellow-600 mt-1">Tidak ada satuan aktif.</p>
-                    }
-                </div>
+                        <div>
+                            <Label htmlFor="status">Status</Label>
+                            <Select
+                                id="status"
+                                options={[
+                                    { value: '1', label: 'Aktif' },
+                                    { value: '0', label: 'Nonaktif' }
+                                ]}
+                                value={String(status)}
+                                onChange={(value) => setStatus(Number(value) as StatusToko)}
+                                disabled={loading}
+                                className="dark:bg-gray-900 mt-1.5"
+                            />
+                        </div>
 
-            <div className="mb-3">
-                <label>Status</label>
-                <select value={status} className="border p-2 w-full"
-                        onChange={(e) => setStatus(Number(e.target.value) as StatusToko)}>
-                    <option value={1}>Aktif</option>
-                    <option value={0}>Nonaktif</option>
-                </select>
-            </div>
+                        {formError && (
+                            <div className="p-3 bg-error-50 border border-error-500 rounded-lg dark:bg-error-500/15">
+                                <p className="text-sm text-error-600 dark:text-error-400">{formError}</p>
+                            </div>
+                        )}
 
-            <button type="submit"
-                    disabled={loading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-                {loading ? "Menyimpan..." : "Simpan"}
-            </button>
-            <button type="button"
-                    onClick={() => navigate("/barang")}
-                    className="px-4 py-2 bg-gray-400 text-white rounded-lg ml-2">
-                    Kembali 
-            </button>
-        </form>
-        </ComponentCard>
-    )
+                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => navigate("/barang")}
+                                disabled={loading}
+                            >
+                                Batal
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                disabled={loading || loadingSatuan}
+                            >
+                                {loading ? "Menyimpan..." : "Simpan"}
+                            </Button>
+                        </div>
+                    </div>
+                </form>
+            </ComponentCard>
+        </>
+    );
 }

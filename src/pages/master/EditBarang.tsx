@@ -1,20 +1,18 @@
 import { useState, useEffect, FormEvent } from "react";
-// 1. Import useParams untuk mengambil ID dari URL
 import { useNavigate, useParams } from "react-router-dom";
 import {
     fetchSatuanOptions,
     updateBarangData,
-    fetchSingleBarangData // 2. Import fungsi untuk mengambil 1 barang
+    fetchSingleBarangData
 } from "../../services/DataMasterServices";
 import { StatusToko } from "../../types/data";
 import ComponentCard from "../../components/common/ComponentCard";
-// Import komponen UI yang Anda perlukan
 import PageMeta from "../../components/common/PageMeta";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import Label from "../../components/form/Label"; // Asumsi Anda punya ini
-import Input from "../../components/form/input/InputField"; // Asumsi Anda punya ini
-import Select from "../../components/form/Select"; // Asumsi Anda punya ini
-import Button from "../../components/ui/button/Button"; // Asumsi Anda punya ini
+import Label from "../../components/form/Label";
+import Input from "../../components/form/input/InputField";
+import Select from "../../components/form/Select";
+import Button from "../../components/ui/button/Button";
 
 interface SelectOption {
     value: string;
@@ -23,7 +21,6 @@ interface SelectOption {
 
 export default function EditBarangPage() {
     const navigate = useNavigate();
-    // 3. Ambil 'id' dari parameter URL. (Misal: /barang/edit/8 -> id akan "8")
     const { id } = useParams<{ id: string }>();
     const [barangId, setBarangId] = useState<number | null>(null);
 
@@ -34,18 +31,16 @@ export default function EditBarangPage() {
     const [status, setStatus] = useState<StatusToko>(1);
 
     // State untuk loading dan error
-    const [loadingData, setLoadingData] = useState(true); // Loading saat fetch data
-    const [isSaving, setIsSaving] = useState(false); // Loading saat submit
+    const [loadingData, setLoadingData] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const [loadingSatuan, setLoadingSatuan] = useState(true);
-    const [submitError, setSubmitError] = useState<string | null>(null); // Error saat submit
-    const [fetchError, setFetchError] = useState<string | null>(null); // Error saat mengambil data
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [fetchError, setFetchError] = useState<string | null>(null);
 
     // State untuk dropdown satuan
     const [satuanOptions, setSatuanOptions] = useState<SelectOption[]>([]);
 
-    // 4. useEffect untuk memuat data saat komponen dimuat
     useEffect(() => {
-        // Validasi ID dari URL
         if (!id) {
             setFetchError("ID Barang tidak ditemukan di URL.");
             setLoadingData(false);
@@ -61,7 +56,7 @@ export default function EditBarangPage() {
             return;
         }
 
-        setBarangId(numId); // Simpan ID dalam bentuk angka
+        setBarangId(numId);
 
         const loadAllData = async () => {
             setLoadingData(true);
@@ -70,14 +65,17 @@ export default function EditBarangPage() {
             try {
                 // Ambil data barang dan data satuan secara bersamaan
                 const [barangData, satuanData] = await Promise.all([
-                    fetchSingleBarangData(numId), // Ambil data barang (misal: "Beras")
-                    fetchSatuanOptions()          // Ambil daftar satuan (PCS, Unit, dll)
+                    fetchSingleBarangData(numId),
+                    fetchSatuanOptions()
                 ]);
 
-                // 5. ISI STATE FORM DENGAN DATA LAMA (Ini yang Anda maksud)
-                setNama(barangData.nama);
-                setJenis(barangData.jenis);
-                setIdSatuan(String(barangData.idsatuan)); // Konversi ke string untuk <Select>
+                console.log("📦 Data barang dari API:", barangData);
+                console.log("📋 Data satuan dari API:", satuanData);
+
+                // ISI STATE FORM DENGAN DATA LAMA
+                setNama(barangData.nama || "");
+                setJenis(barangData.jenis || "B");
+                setIdSatuan(barangData.idsatuan ? String(barangData.idsatuan) : "");
                 setStatus(barangData.status ?? 1);
 
                 // Isi dropdown satuan
@@ -88,7 +86,7 @@ export default function EditBarangPage() {
                 setSatuanOptions(options);
 
             } catch (err: any) {
-                console.error("Gagal fetch data:", err);
+                console.error("❌ Gagal fetch data:", err);
                 setFetchError(err.message || "Gagal memuat data");
             } finally {
                 setLoadingData(false);
@@ -97,121 +95,137 @@ export default function EditBarangPage() {
         };
 
         loadAllData();
-    }, [id]); // Dependency array [id], agar dieksekusi jika ID berubah
+    }, [id]);
 
-    // 6. Handle Submit untuk menyimpan perubahan
-    const handleSubmit = async (e: FormEvent) => { // Ganti React.FormEvent menjadi FormEvent
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         
         if (!barangId) {
-             setSubmitError("ID Barang tidak valid, tidak bisa menyimpan.");
-             return;
+            setSubmitError("ID Barang tidak valid, tidak bisa menyimpan.");
+            return;
+        }
+
+        if (!nama.trim()) {
+            setSubmitError("Nama barang wajib diisi.");
+            return;
+        }
+
+        if (!idSatuan) {
+            setSubmitError("Satuan wajib dipilih.");
+            return;
         }
         
-        setIsSaving(true); // Ganti setLoading menjadi setIsSaving
-        setSubmitError(null);
+setIsSaving(true);
+setSubmitError(null);
+
+const dataToUpdate = {
+    nama: nama.trim(),
+    jenis: jenis,
+    idsatuan: Number(idSatuan),
+    status: status
+};
+
+console.log("📤 Data yang akan dikirim:", dataToUpdate);
+console.log("🔑 ID Barang:", barangId);
+
         try {
-            await updateBarangData(barangId, { // Kirim ID yang benar
-                nama,
-                jenis,
-                idsatuan: Number(idSatuan), // Konversi kembali ke angka
-                status
-            });
-            alert("Barang berhasil diperbarui!"); // Pesan lebih sesuai
-            navigate("/barang"); // Kembali ke daftar barang
+            const result = await updateBarangData(barangId, dataToUpdate);
+            console.log("Response dari server:", result);
+            alert("Barang berhasil diperbarui!");
+            navigate("/barang");
         } catch (error: any) {
-            console.error(error);
-            setSubmitError(error.message || "Gagal memperbarui barang"); // Set error submit
+            console.error("❌ Error saat update:", error);
+            setSubmitError(error.message || "Gagal memperbarui barang");
         } finally {
-            setIsSaving(false); // Ganti setLoading menjadi setIsSaving
+            setIsSaving(false);
         }
     };
 
-    // 7. Render JSX
     return (
         <>
-            {/* Tambahkan PageMeta dan PageBreadcrumb agar konsisten */}
-            <PageMeta title={`Edit Barang ID: ${id}`} description={"Halaman untuk mengedit data barang yang sudah ada."} />
+            <PageMeta title={`Edit Barang ID: ${id}`} description="Halaman untuk mengedit data barang yang sudah ada." />
             <PageBreadcrumb pageTitle="Edit Barang" />
 
             <ComponentCard title={`Edit Data Barang (ID: ${id})`}>
                 {loadingData ? (
                     <p className="text-center py-10">Memuat data barang...</p>
                 ) : fetchError ? (
-                    // Tampilkan pesan error jika fetch gagal
-                    <div className="text-red-600 bg-red-50 p-4 rounded border border-red-200">
+                    <div className="text-red-600 bg-red-50 p-4 rounded border border-red-200 dark:bg-red-500/15 dark:border-red-500">
                         <strong>Error:</strong> {fetchError}
-                         <Button variant="outline" size="sm" onClick={() => navigate("/barang")} className="ml-4">
+                        <Button variant="outline" size="sm" onClick={() => navigate("/barang")} className="ml-4">
                             Kembali
                         </Button>
                     </div>
                 ) : (
-                    // Tampilkan form jika data berhasil dimuat
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="mb-3">
-                            {/* Ganti ke komponen Label dan Input kustom */}
-                            <Label htmlFor="nama">Nama</Label>
+                        <div>
+                            <Label htmlFor="nama">Nama Barang</Label>
                             <Input
                                 id="nama"
                                 type="text"
-                                className="border p-2 w-full mt-1.5"
-                                value={nama} // 8. Bind state 'nama' ke value
+                                value={nama}
                                 onChange={(e) => setNama(e.target.value)}
+                                placeholder="Masukkan nama barang"
                                 required
-                                disabled={isSaving} // Gunakan isSaving
+                                disabled={isSaving}
+                                className="mt-1.5"
                             />
                         </div>
 
-                        <div className="mb-3">
+                        <div>
                             <Label htmlFor="jenis">Jenis</Label>
-                            {/* Ganti ke komponen Select kustom */}
                             <Select
                                 id="jenis"
-                                className="border p-2 w-full mt-1.5 dark:bg-gray-900"
-                                options={[{ value: 'B', label: 'Barang' }]}
-                                value={jenis} // 9. Bind state 'jenis' ke value
+                                options={[
+                                    { value: 'B', label: 'Barang' }
+                                ]}
+                                value={jenis}
                                 onChange={(val) => setJenis(val)}
                                 disabled={isSaving}
+                                className="dark:bg-gray-900 mt-1.5"
                             />
                         </div>
 
-                        <div className="mb-3">
+                        <div>
                             <Label htmlFor="satuan">Satuan</Label>
                             <Select
                                 id="satuan"
-                                className="border p-2 w-full mt-1.5 dark:bg-gray-900"
-                                value={idSatuan} // 10. Bind state 'idSatuan' ke value
-                                onChange={(val) => setIdSatuan(val)}
-                                required
-                                disabled={isSaving || loadingSatuan || !!fetchError || satuanOptions.length === 0}
                                 options={satuanOptions}
+                                value={idSatuan}
+                                onChange={(val) => setIdSatuan(val)}
                                 placeholder={loadingSatuan ? "Memuat satuan..." : "-- Pilih Satuan --"}
+                                required
+                                disabled={isSaving || loadingSatuan || satuanOptions.length === 0}
+                                className="dark:bg-gray-900 mt-1.5"
                             />
-                            {!loadingSatuan && !fetchError && satuanOptions.length === 0 &&
+                            {!loadingSatuan && satuanOptions.length === 0 && (
                                 <p className="text-xs text-yellow-600 mt-1">Tidak ada satuan aktif.</p>
-                            }
+                            )}
                         </div>
 
-                        <div className="mb-3">
+                        <div>
                             <Label htmlFor="status">Status</Label>
                             <Select
                                 id="status"
-                                value={String(status)} // 11. Bind state 'status' ke value
-                                className="border p-2 w-full mt-1.5 dark:bg-gray-900"
-                                options={[{ value: '1', label: 'Aktif' }, { value: '0', label: 'Nonaktif' }]}
+                                options={[
+                                    { value: '1', label: 'Aktif' },
+                                    { value: '0', label: 'Nonaktif' }
+                                ]}
+                                value={String(status)}
                                 onChange={(val) => setStatus(Number(val) as StatusToko)}
                                 disabled={isSaving}
+                                className="dark:bg-gray-900 mt-1.5"
                             />
                         </div>
                         
-                        {/* Tampilkan error submit */}
                         {submitError && (
-                             <div className="text-red-600 bg-red-50 p-3 rounded border border-red-200">
-                                {submitError}
+                            <div className="p-3 bg-error-50 border border-error-500 rounded-lg dark:bg-error-500/15">
+                                <p className="text-sm font-medium text-error-600 dark:text-error-400">
+                                    ⚠️ {submitError}
+                                </p>
                             </div>
                         )}
 
-                        {/* Ganti ke komponen Button kustom */}
                         <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
                             <Button
                                 type="button"
@@ -221,10 +235,11 @@ export default function EditBarangPage() {
                             >
                                 Batal
                             </Button>
+                            
                             <Button
                                 type="submit"
                                 variant="primary"
-                                disabled={isSaving || loadingData} // Disable juga jika data masih loading
+                                disabled={isSaving || loadingData}
                             >
                                 {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
                             </Button>
