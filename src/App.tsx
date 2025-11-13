@@ -16,6 +16,8 @@ import BarangPage from "./pages/master/Barang";
 import BarangTambahPage from "./pages/master/BarangTambah";
 import EditBarangPage from "./pages/master/EditBarang";
 import SatuanPage from "./pages/master/Satuan";
+import SatuanTambah from "./pages/master/SatuanTambah";
+import EditSatuan from "./pages/master/EditSatuan";
 import VendorPage from "./pages/master/Vendor";
 import PengadaanPage from "./pages/Penjualan/Pengadaan";
 import TambahPengadaanPage from "./pages/Penjualan/TambahPengadaan";
@@ -49,6 +51,8 @@ export default function App() {
             <Route path="/barang/tambah" element={<BarangTambahPage />} />
             <Route path="/barang/edit/:id" element={<EditBarangPage />} />
             <Route path="/satuan" element={<SatuanPage />} />
+            <Route path="/satuan/tambah" element={<SatuanTambah />} />
+            <Route path="/satuan/edit/:id" element={<EditSatuan />} />
             <Route path="/vendor" element={<VendorPage />} />
             <Route path="/role" element={<RolePage />} />
             <Route path="/user" element={<UserPage />} />

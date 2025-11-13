@@ -19,6 +19,7 @@ export default function BarangTambah() {
     const navigate = useNavigate();
     const [nama, setNama] = useState("");
     const [jenis, setJenis] = useState("B");
+    const [harga, setHarga] = useState("");
     const [idSatuan, setIdSatuan] = useState<string>("");
     const [status, setStatus] = useState<StatusToko>(1);
     const [loading, setLoading] = useState(false);
@@ -74,7 +75,8 @@ export default function BarangTambah() {
                 nama: nama.trim(),
                 jenis,
                 idsatuan: Number(idSatuan),
-                status
+                status,
+                harga: Number(harga)
             });
             alert("Barang berhasil ditambahkan!");
             navigate("/barang");
@@ -107,14 +109,26 @@ export default function BarangTambah() {
                                 className="mt-1.5"
                             />
                         </div>
+                        <div>
+                            <Label htmlFor="harga">Harga Satuan Barang</Label>
+                            <Input
+                                id="harga"
+                                type="text"
+                                value={harga}
+                                onChange={(e) => setHarga(e.target.value)}
+                                placeholder="Masukkan Harga barang"
+                                required
+                                disabled={loading}
+                                className="mt-1.5"
+                            />
+                        </div>
 
                         <div>
                             <Label htmlFor="jenis">Jenis</Label>
                             <Select
                                 id="jenis"
                                 options={[
-                                    { value: 'B', label: 'Barang' },
-                                    { value: 'J', label: 'Jasa' }
+                                    { value: 'B', label: 'Barang' }
                                 ]}
                                 value={jenis}
                                 onChange={(value) => setJenis(value)}

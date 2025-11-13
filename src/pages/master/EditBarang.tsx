@@ -28,6 +28,7 @@ export default function EditBarangPage() {
     const [nama, setNama] = useState("");
     const [jenis, setJenis] = useState("B");
     const [idSatuan, setIdSatuan] = useState<string>("");
+    const [harga, setHarga] = useState("");
     const [status, setStatus] = useState<StatusToko>(1);
 
     // State untuk loading dan error
@@ -122,7 +123,8 @@ const dataToUpdate = {
     nama: nama.trim(),
     jenis: jenis,
     idsatuan: Number(idSatuan),
-    status: status
+    status: status,
+    harga: Number(harga)  
 };
 
 console.log("📤 Data yang akan dikirim:", dataToUpdate);
