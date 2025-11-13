@@ -92,14 +92,14 @@ app.post('/api/v1/barang', async (req, res) => {
     try {
         const { nama, jenis, idsatuan, status, harga} = req.body;
 
-        if (!nama || !jenis || idsatuan === undefined || idsatuan === null || status === undefined || status === null || !harga) {
+        if (!nama || !jenis || idsatuan === undefined || idsatuan === null || status === undefined || status === null || harga === undefined || harga === null) {
             return res.status(400).json({ status: 'fail', message: 'Semua field (nama, jenis, idsatuan, status, harga) wajib diisi.' });
         }
         if (jenis !== 'B' && jenis !== 'J') {
             return res.status(400).json({ status: 'fail', message: 'Nilai jenis tidak valid (harus B atau J).' });
         }
-        if (harga <=0 ) {
-            return res.status(400).json({ status: 'fail', message: 'Nilai harga tidak valid (harus > 0).' });
+        if (isNaN(parseFloat(harga)) || harga < 0) {
+             return res.status(400).json({ status: 'fail', message: 'Harga tidak valid.' });
         }
         if (status !== 0 && status !== 1) {
             return res.status(400).json({ status: 'fail', message: 'Nilai status tidak valid (harus 0 atau 1).' });
@@ -115,7 +115,7 @@ app.post('/api/v1/barang', async (req, res) => {
             return res.status(400).json({ status: 'fail', message: `Satuan dengan ID ${idsatuan} tidak ditemukan.` });
         }
 
-        const query = 'INSERT INTO barang (nama, jenis, idsatuan, status, harga) VALUES (?,?, ?, ?, ?)';
+        const query = 'INSERT INTO barang (nama, jenis, idsatuan, status, harga) VALUES (?, ?, ?, ?, ?)';
         const [result] = await connection.execute(query, [nama, jenis, idsatuan, status, harga]);
 
         const [newData] = await connection.execute('SELECT * FROM view_barang WHERE idbarang = ?', [result.insertId]);
@@ -140,14 +140,14 @@ app.put('/api/v1/barang/:id', async (req, res) => {
 
         const { nama, jenis, idsatuan, status, harga } = req.body;
 
-        if (!nama || !jenis || idsatuan === undefined || idsatuan === null || status === undefined || status === null || !harga) {
+        if (!nama || !jenis || idsatuan === undefined || idsatuan === null || status === undefined || status === null || harga === undefined || harga === null) {
             return res.status(400).json({ status: 'fail', message: 'Semua field (nama, jenis, idsatuan, status,harga) wajib diisi.' });
         }
         if (jenis !== 'B' ) {
             return res.status(400).json({ status: 'fail', message: 'Nilai jenis tidak valid (harus B atau J).' });
         }
-        if (harga <=0 ) {
-            return res.status(400).json({ status: 'fail', message: 'Nilai harga tidak valid (harus > 0).' });
+        if (isNaN(parseFloat(harga)) || harga < 0) {
+             return res.status(400).json({ status: 'fail', message: 'Harga tidak valid.' });
         }
         if (status !== 0 && status !== 1) {
             return res.status(400).json({ status: 'fail', message: 'Nilai status tidak valid (harus 0 atau 1).' });

@@ -50,7 +50,7 @@ export interface Barang {
   idsatuan: number | null;
   status: StatusToko;
   nama_satuan?: string; 
-  harga : number;
+  harga?: number;
 }
 
 

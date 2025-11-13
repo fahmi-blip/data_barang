@@ -14,7 +14,7 @@ export interface ViewBarang {
   jenis: string;      // CHAR(1)
   nama_satuan: string; // Hasil JOIN dari tabel satuan
   status: StatusToko;
-  harga: number;
+  harga?: number;
 }
 export interface ViewBarangAktif {
   idbarang: number;

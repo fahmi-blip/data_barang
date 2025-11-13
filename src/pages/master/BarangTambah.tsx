@@ -69,6 +69,11 @@ export default function BarangTambah() {
             setLoading(false);
             return;
         }
+        if (Number(harga) < 0) {
+            setFormError("Harga tidak boleh negatif.");
+            setLoading(false);
+            return;
+        }
 
         try {
             await addBarangData({
