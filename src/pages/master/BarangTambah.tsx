@@ -74,6 +74,12 @@ export default function BarangTambah() {
             setLoading(false);
             return;
         }
+const hargaNum = Number(harga);
+if (isNaN(hargaNum) || hargaNum < 0) {
+    setFormError("Harga tidak valid atau tidak boleh negatif.");
+    setLoading(false);
+    return;
+}
 
         try {
             await addBarangData({
@@ -119,6 +125,8 @@ export default function BarangTambah() {
                             <Input
                                 id="harga"
                                 type="text"
+                               
+                                min="0"
                                 value={harga}
                                 onChange={(e) => setHarga(e.target.value)}
                                 placeholder="Masukkan Harga barang"

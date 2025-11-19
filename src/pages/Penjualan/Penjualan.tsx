@@ -54,7 +54,8 @@ export default function PenjualanPage() {
                 </Button>
             </div>
             <div className="flex justify-end mb-4">
-                <Button size="sm" variant="primary">
+                <Button size="sm" variant="primary"
+                onClick={() => navigate('/penjualan/tambah')}>
                     Tambah Penjualan Baru
                 </Button>
             </div>

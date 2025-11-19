@@ -20,7 +20,7 @@ export default function BarangPage() {
     const [barangList, setBarangList] = useState<(ViewBarang | ViewBarangAktif ) []>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [filter, setFilter] = useState<'all' | 'active'>('all');
+    const [filter, setFilter] = useState<'all' | 'active'>('active');
 
     const loadData = async () => {
         setLoading(true);
@@ -65,7 +65,7 @@ export default function BarangPage() {
 };
 
  const toggleFilter = () => {
-        setFilter(prev => (prev === "all" ? "active" : "all"));
+        setFilter(prev => (prev === "active" ? "all" : "active"));
     };
 
     return (
@@ -106,7 +106,14 @@ export default function BarangPage() {
                             <div className="max-w-full overflow-x-auto">
                                 <Table className="w-full">
                                     <TableHeader className="border-b border-gray-100 bg-white dark:border-white/[0.05] dark:bg-gray-800">
-                                        {filter === "all" ? (
+                                        {filter === "active" ? (
+                                            <TableRow>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID</TableCell>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Barang</TableCell>
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Satuan</TableCell>
+                                                
+                                            </TableRow>
+                                        ) : (
                                             <TableRow>
                                                 <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID</TableCell>
                                                 <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Barang</TableCell>
@@ -116,12 +123,6 @@ export default function BarangPage() {
                                                 <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
                                                 <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
                                             </TableRow>
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID</TableCell>
-                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Barang</TableCell>
-                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Satuan</TableCell>
-                                            </TableRow>
                                         )}
                                     </TableHeader>
 
@@ -129,7 +130,7 @@ export default function BarangPage() {
                                         {barangList.length === 0 ? (
                                             <TableRow className="hover:bg-gray-50 dark:hover:bg-white/5">
                                                 <TableCell
-                                                    colSpan={filter === "active" ? 3 : 6}
+                                                    colSpan={filter === "all" ? 3 : 6}
                                                     className="px-5 py-6 text-center text-gray-500 dark:text-gray-400"
                                                 >
                                                     Tidak ada data barang.

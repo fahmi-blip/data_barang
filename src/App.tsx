@@ -23,11 +23,13 @@ import PengadaanPage from "./pages/Penjualan/Pengadaan";
 import TambahPengadaanPage from "./pages/Penjualan/TambahPengadaan";
 import DetailPengadaanPage from "./pages/Penjualan/DetailPengadaan";
 import PenerimaanPage from "./pages/Penjualan/Penerimaan";
+import TambahPenerimaanPage from "./pages/Penjualan/TambahPenerimaan";
 import DetailPenerimaanPage from "./pages/Penjualan/DetailPenerimaan";
 import RolePage from "./pages/master/Role";
 import UserPage from "./pages/master/User";
 import MarginPenjualanPage from "./pages/master/MarginPenjualan";
 import PenjualanPage from "./pages/Penjualan/Penjualan";
+import TambahPenjualanPage from "./pages/Penjualan/TambahPenjualan";
 import DetailPenjualanPage from "./pages/Penjualan/DetailPenjualan";
 // import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
@@ -63,8 +65,10 @@ export default function App() {
             <Route path="/pengadaan/tambah" element={<TambahPengadaanPage />} />
             <Route path="/pengadaan/detail" element={<DetailPengadaanPage />} />
             <Route path="/penerimaan" element={<PenerimaanPage />} />
+            <Route path="/penerimaan/tambah" element={<TambahPenerimaanPage />} />
             <Route path="/penerimaan/detail" element={<DetailPenerimaanPage />} />
             <Route path="/penjualan" element={<PenjualanPage />} />
+            <Route path="/penjualan/tambah" element={<TambahPenjualanPage />} />
             <Route path="/penjualan/detail" element={<DetailPenjualanPage />} />
             
             {/* Others Page */}

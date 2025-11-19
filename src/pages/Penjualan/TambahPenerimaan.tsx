@@ -1,4 +1,4 @@
-// src/pages/Penjualan/TambahPengadaan.tsx
+// src/pages/Penjualan/TambahPenerimaan.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
@@ -11,9 +11,8 @@ import PageMeta from "../../components/common/PageMeta";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import { TrashBinIcon } from "../../icons";
 
-import { addPengadaanData, fetchVendorData, fetchBarangActiveData } from "../../services/DataMasterServices";
-import { Vendor } from "../../types/data";
-import { ViewBarangAktif } from "../../types/data";
+import { fetchPengadaanData, fetchBarangActiveData } from "../../services/DataMasterServices";
+import { ViewPengadaan, ViewBarangAktif } from "../../types/data";
 
 interface SelectOption {
     value: string;
@@ -21,29 +20,28 @@ interface SelectOption {
 }
 
 interface DetailItem {
-    id: string; // temporary ID untuk React key
+    id: string;
     idbarang: number;
     nama_barang: string;
-    harga_satuan: number;
-    jumlah: number;
-    sub_total: number;
+    jumlah_terima: number;
+    harga_satuan_terima: number;
+    sub_total_terima: number;
 }
 
-export default function TambahPengadaanPage() {
-    // State untuk Header Pengadaan
-    const [idVendor, setIdVendor] = useState('');
-    const [ppn, setPpn] = useState(11); // Default PPN 11%
+export default function TambahPenerimaanPage() {
+    // State untuk Header
+    const [idPengadaan, setIdPengadaan] = useState('');
     
     // State untuk Detail Items
     const [detailItems, setDetailItems] = useState<DetailItem[]>([]);
     
-    // State untuk Form Input Detail Baru
+    // State untuk Form Input Detail
     const [selectedBarang, setSelectedBarang] = useState('');
-    const [jumlah, setJumlah] = useState<number>(0);
+    const [jumlahTerima, setJumlahTerima] = useState<number>(0);
     const [hargaSatuan, setHargaSatuan] = useState<number>(0);
     
     // State untuk Dropdown Options
-    const [vendorOptions, setVendorOptions] = useState<SelectOption[]>([]);
+    const [pengadaanOptions, setPengadaanOptions] = useState<SelectOption[]>([]);
     const [barangOptions, setBarangOptions] = useState<SelectOption[]>([]);
     const [barangList, setBarangList] = useState<ViewBarangAktif[]>([]);
     
@@ -54,23 +52,24 @@ export default function TambahPengadaanPage() {
     
     const navigate = useNavigate();
 
-    // Load data vendor dan barang saat component mount
     useEffect(() => {
         const loadInitialData = async () => {
             setLoadingData(true);
             try {
-                const [vendors, barangs] = await Promise.all([
-                    fetchVendorData(),
+                const [pengadaans, barangs] = await Promise.all([
+                    fetchPengadaanData(),
                     fetchBarangActiveData()
                 ]);
 
-                // Set vendor options
-                const vendorOpts = vendors
-                    .filter(v => Number(v.status) === 1)
-                    .map(v => ({ value: String(v.idvendor), label: v.nama_vendor }));
-                setVendorOptions(vendorOpts);
+                // Filter pengadaan dengan status = 1
+                const pengadaanOpts = pengadaans
+                    .filter(p => Number(p.status) === 1)
+                    .map(p => ({
+                        value: String(p.idpengadaan),
+                        label: `ID: ${p.idpengadaan} - ${p.nama_vendor} (${p.tanggal_pengadaan})`
+                    }));
+                setPengadaanOptions(pengadaanOpts);
 
-                // Set barang options
                 const barangOpts = barangs.map(b => ({
                     value: String(b.idbarang),
                     label: `${b.nama} (${b.nama_satuan})`
@@ -87,7 +86,6 @@ export default function TambahPengadaanPage() {
         loadInitialData();
     }, []);
 
-    // Hitung subtotal otomatis saat barang dipilih
     useEffect(() => {
         if (selectedBarang) {
             const barang = barangList.find(b => String(b.idbarang) === selectedBarang);
@@ -97,14 +95,13 @@ export default function TambahPengadaanPage() {
         }
     }, [selectedBarang, barangList]);
 
-    // Handler untuk menambah item ke tabel detail
     const handleAddItem = () => {
         if (!selectedBarang) {
             setError("Pilih barang terlebih dahulu!");
             return;
         }
-        if (jumlah <= 0) {
-            setError("Jumlah harus lebih dari 0!");
+        if (jumlahTerima <= 0) {
+            setError("Jumlah terima harus lebih dari 0!");
             return;
         }
         if (hargaSatuan <= 0) {
@@ -122,45 +119,33 @@ export default function TambahPengadaanPage() {
             id: `temp-${Date.now()}`,
             idbarang: barang.idbarang,
             nama_barang: barang.nama,
-            harga_satuan: hargaSatuan,
-            jumlah: jumlah,
-            sub_total: hargaSatuan * jumlah
+            jumlah_terima: jumlahTerima,
+            harga_satuan_terima: hargaSatuan,
+            sub_total_terima: hargaSatuan * jumlahTerima
         };
 
         setDetailItems([...detailItems, newItem]);
-        
-        // Reset form input detail
         setSelectedBarang('');
-        setJumlah(0);
+        setJumlahTerima(0);
         setHargaSatuan(0);
         setError(null);
     };
 
-    // Handler untuk menghapus item dari tabel
     const handleRemoveItem = (id: string) => {
         setDetailItems(detailItems.filter(item => item.id !== id));
     };
 
-    // Hitung total
-    const calculateSubtotal = () => {
-        return detailItems.reduce((sum, item) => sum + item.sub_total, 0);
-    };
-
-    const calculatePPN = () => {
-        return (calculateSubtotal() * ppn) / 100;
-    };
-
     const calculateTotal = () => {
-        return calculateSubtotal() + calculatePPN();
+        return detailItems.reduce((sum, item) => sum + item.sub_total_terima, 0);
     };
 
-    // Handler submit form
     const handleSubmit = async () => {
         setLoading(true);
         setError(null);
+        
 
-        if (!idVendor) {
-            setError("Vendor wajib dipilih!");
+        if (!idPengadaan) {
+            setError("Pengadaan wajib dipilih!");
             setLoading(false);
             return;
         }
@@ -171,17 +156,11 @@ export default function TambahPengadaanPage() {
             return;
         }
 
-        const dataUntukSP = {
-            p_user_id: 1, // GANTI dengan ID user yang sedang login
-            p_vendor_id: parseInt(idVendor),
-            p_subtotal: calculateSubtotal(),
-            p_ppn: ppn
-        };
-
         try {
-            const hasil = await addPengadaanData(dataUntukSP);
-            alert('Pengadaan baru berhasil ditambahkan! ID: ' + hasil.idpengadaan);
-            navigate('/pengadaan');
+            // Simpan ke API (sesuaikan dengan endpoint yang ada)
+            // await addPenerimaanData({ idpengadaan: parseInt(idPengadaan), items: detailItems });
+            alert('Penerimaan berhasil ditambahkan!');
+            navigate('/penerimaan');
         } catch (err: any) {
             setError(err.message || "Terjadi kesalahan saat menyimpan.");
         } finally {
@@ -192,10 +171,10 @@ export default function TambahPengadaanPage() {
     if (loadingData) {
         return (
             <>
-                <PageMeta title="Tambah Pengadaan" description=""/>
-                <PageBreadcrumb pageTitle="Tambah Pengadaan Baru" />
+                <PageMeta title="Tambah Penerimaan" description=""/>
+                <PageBreadcrumb pageTitle="Tambah Penerimaan Baru" />
                 <ComponentCard title="Memuat Data...">
-                    <p className="text-center py-10">Memuat data vendor dan barang...</p>
+                    <p className="text-center py-10">Memuat data...</p>
                 </ComponentCard>
             </>
         );
@@ -203,43 +182,29 @@ export default function TambahPengadaanPage() {
 
     return (
         <>
-            <PageMeta title="Tambah Pengadaan" description=""/>
-            <PageBreadcrumb pageTitle="Tambah Pengadaan Baru" />
+            <PageMeta title="Tambah Penerimaan" description="" />
+            <PageBreadcrumb pageTitle="Tambah Penerimaan Baru" />
             
             <div className="space-y-6">
-                {/* Form Header Pengadaan */}
-                <ComponentCard title="Informasi Pengadaan">
+                <ComponentCard title="Informasi Penerimaan">
                     <div className="space-y-4">
                         <div>
-                            <Label htmlFor="vendor">Vendor *</Label>
+                            <Label htmlFor="pengadaan">Pengadaan *</Label>
                             <Select
-                                id="vendor"
-                                options={vendorOptions}
-                                value={idVendor}
-                                onChange={(value) => setIdVendor(value)}
-                                placeholder="Pilih Vendor"
+                                id="pengadaan"
+                                options={pengadaanOptions}
+                                value={idPengadaan}
+                                onChange={(value) => setIdPengadaan(value)}
+                                placeholder="Pilih Pengadaan"
                                 required
-                                disabled={loading || vendorOptions.length === 0}
+                                disabled={loading || pengadaanOptions.length === 0}
                                 className="dark:bg-gray-900"
-                            />
-                        </div>
-                        
-                        <div>
-                            <Label htmlFor="ppn">PPN (%)</Label>
-                            <Input
-                                id="ppn"
-                                type="number"
-                                value={ppn}
-                                onChange={(e) => setPpn(parseFloat(e.target.value) || 0)}
-                                required
-                                disabled={loading}
                             />
                         </div>
                     </div>
                 </ComponentCard>
 
-                {/* Form Input Detail Barang */}
-                <ComponentCard title="Tambah Item Barang">
+                <ComponentCard title="Tambah Item Barang Diterima">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <Label htmlFor="barang">Barang *</Label>
@@ -249,7 +214,7 @@ export default function TambahPengadaanPage() {
                                 value={selectedBarang}
                                 onChange={(value) => setSelectedBarang(value)}
                                 placeholder="Pilih Barang"
-                                disabled={loading || barangOptions.length === 0}
+                                disabled={loading}
                                 className="dark:bg-gray-900"
                             />
                         </div>
@@ -267,12 +232,12 @@ export default function TambahPengadaanPage() {
                         </div>
                         
                         <div>
-                            <Label htmlFor="jumlah">Jumlah *</Label>
+                            <Label htmlFor="jumlah">Jumlah Terima *</Label>
                             <Input
                                 id="jumlah"
                                 type="number"
-                                value={jumlah || ''}
-                                onChange={(e) => setJumlah(parseInt(e.target.value) || 0)}
+                                value={jumlahTerima || ''}
+                                onChange={(e) => setJumlahTerima(parseInt(e.target.value) || 0)}
                                 placeholder="0"
                                 disabled={loading}
                             />
@@ -293,8 +258,7 @@ export default function TambahPengadaanPage() {
                     </div>
                 </ComponentCard>
 
-                {/* Tabel Detail Items */}
-                <ComponentCard title="Daftar Barang">
+                <ComponentCard title="Daftar Barang Diterima">
                     {detailItems.length === 0 ? (
                         <p className="text-center py-10 text-gray-500 dark:text-gray-400">
                             Belum ada item barang. Tambahkan item di atas.
@@ -307,7 +271,7 @@ export default function TambahPengadaanPage() {
                                         <TableRow>
                                             <TableCell isHeader className="px-5 py-3">Nama Barang</TableCell>
                                             <TableCell isHeader className="px-5 py-3 text-right">Harga Satuan</TableCell>
-                                            <TableCell isHeader className="px-5 py-3 text-right">Jumlah</TableCell>
+                                            <TableCell isHeader className="px-5 py-3 text-right">Jumlah Terima</TableCell>
                                             <TableCell isHeader className="px-5 py-3 text-right">Sub Total</TableCell>
                                             <TableCell isHeader className="px-5 py-3 text-center">Aksi</TableCell>
                                         </TableRow>
@@ -317,11 +281,11 @@ export default function TambahPengadaanPage() {
                                             <TableRow key={item.id} className="hover:bg-gray-50 dark:hover:bg-white/5">
                                                 <TableCell className="px-5 py-4">{item.nama_barang}</TableCell>
                                                 <TableCell className="px-5 py-4 text-right">
-                                                    Rp {item.harga_satuan.toLocaleString('id-ID')}
+                                                    Rp {item.harga_satuan_terima.toLocaleString('id-ID')}
                                                 </TableCell>
-                                                <TableCell className="px-5 py-4 text-right">{item.jumlah}</TableCell>
+                                                <TableCell className="px-5 py-4 text-right">{item.jumlah_terima}</TableCell>
                                                 <TableCell className="px-5 py-4 text-right">
-                                                    Rp {item.sub_total.toLocaleString('id-ID')}
+                                                    Rp {item.sub_total_terima.toLocaleString('id-ID')}
                                                 </TableCell>
                                                 <TableCell className="px-5 py-4 text-center">
                                                     <Button
@@ -342,18 +306,9 @@ export default function TambahPengadaanPage() {
                     )}
                 </ComponentCard>
 
-                {/* Summary & Submit */}
                 <ComponentCard title="Ringkasan">
                     <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                            <span className="text-gray-600 dark:text-gray-400">Subtotal:</span>
-                            <span className="font-medium">Rp {calculateSubtotal().toLocaleString('id-ID')}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                            <span className="text-gray-600 dark:text-gray-400">PPN ({ppn}%):</span>
-                            <span className="font-medium">Rp {calculatePPN().toLocaleString('id-ID')}</span>
-                        </div>
-                        <div className="flex justify-between text-lg font-semibold pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <div className="flex justify-between text-lg font-semibold">
                             <span>Total:</span>
                             <span className="text-brand-600 dark:text-brand-400">
                                 Rp {calculateTotal().toLocaleString('id-ID')}
@@ -371,7 +326,7 @@ export default function TambahPengadaanPage() {
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => navigate('/pengadaan')}
+                            onClick={() => navigate('/penerimaan')}
                             disabled={loading}
                         >
                             Batal
@@ -382,7 +337,7 @@ export default function TambahPengadaanPage() {
                             onClick={handleSubmit}
                             disabled={loading || detailItems.length === 0}
                         >
-                            {loading ? 'Menyimpan...' : 'Simpan Pengadaan'}
+                            {loading ? 'Menyimpan...' : 'Simpan Penerimaan'}
                         </Button>
                     </div>
                 </ComponentCard>

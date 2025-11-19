@@ -166,14 +166,12 @@ app.put('/api/v1/barang/:id', async (req, res) => {
         const query = 'UPDATE barang SET nama = ?, jenis = ?, idsatuan = ?, status = ?, harga = ? WHERE idbarang = ?';
         const [result] = await connection.execute(query, [nama, jenis, idsatuan, status, harga, id]);
 
-        console.log("📊 Affected rows:", result.affectedRows);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ status: 'fail', message: `Barang dengan ID ${id} tidak ditemukan` });
         }
 
         const [updatedData] = await connection.execute('SELECT * FROM barang WHERE idbarang = ?', [id]);
-        console.log("✅ Data berhasil diupdate:", updatedData[0]);
 
         res.status(200).json({ status: 'success', message: `Barang ID ${id} berhasil diperbarui`, data: updatedData[0] });
 
@@ -543,6 +541,104 @@ app.get('/api/v1/pengadaan/detail', async (req, res) => {
             data: rows
         });
 });
+// Di server.js
+app.post('/api/v1/pengadaan/with-details', async (req, res) => {
+    const { header, items } = req.body;
+    const connection = await mysql.createConnection(dbConfig);
+    
+    try {
+        await connection.beginTransaction();
+        
+        // Insert header
+        const [headerResult] = await connection.execute(
+            'INSERT INTO pengadaan () VALUES (...)',
+            [...]
+        );
+        
+        // Insert details
+        for (const item of items) {
+            await connection.execute(
+                'INSERT INTO detail_pengadaan (idbarang,harga_satuan,jumlah,sub_total) VALUES (?,?,?,?)',
+                [headerResult.insertId, item.idbarang, item.jumlah, ...]
+            );
+        }
+        
+        await connection.commit();
+        res.status(201).json({ status: 'success', data: headerResult });
+    } catch (error) {
+        await connection.rollback();
+        res.status(500).json({ status: 'error', message: error.message });
+    } finally {
+        await connection.end();
+    }
+});
+app.post('/api/v1/pengadaan', async (req, res) => {
+    let connection;
+    try {
+        const { user_id, vendor_id, subtotal_nilai, details } = req.body;
+
+        if (!user_id || !vendor_id || !subtotal_nilai || !Array.isArray(details) || details.length === 0) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Data tidak lengkap. Pastikan user_id, vendor_id, subtotal_nilai, dan details terisi.'
+            });
+        }
+
+        connection = await mysql.createConnection(dbConfig);
+        await connection.beginTransaction();
+
+        // Panggil Stored Procedure untuk membuat header pengadaan
+        const [result] = await connection.execute(
+            'CALL sp_tambah_pengadaan(?, ?, ?)',
+            [user_id, vendor_id, subtotal_nilai]
+        );
+
+        // Ambil ID pengadaan yang baru dibuat
+        const [pengadaanData] = await connection.execute(
+            'SELECT idpengadaan FROM pengadaan WHERE user_iduser = ? AND vendor_idvendor = ? ORDER BY timestamp DESC LIMIT 1',
+            [user_id, vendor_id]
+        );
+
+        const idpengadaan = pengadaanData[0].idpengadaan;
+
+        // Insert detail pengadaan
+        for (const detail of details) {
+            const { idbarang, jumlah, harga_satuan } = detail;
+            const sub_total = jumlah * harga_satuan;
+
+            await connection.execute(
+                'INSERT INTO detail_pengadaan (harga_satuan, jumlah, sub_total, idbarang, idpengadaan) VALUES (?, ?, ?, ?, ?)',
+                [harga_satuan, jumlah, sub_total, idbarang, idpengadaan]
+            );
+        }
+
+        await connection.commit();
+
+        // Ambil data lengkap pengadaan yang baru dibuat
+        const [newData] = await connection.execute(
+            'SELECT * FROM view_pengadaan WHERE idpengadaan = ?',
+            [idpengadaan]
+        );
+
+        res.status(201).json({
+            status: 'success',
+            message: 'Pengadaan berhasil ditambahkan',
+            data: { idpengadaan, details: newData }
+        });
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        console.error("Error adding pengadaan:", error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Gagal menambahkan pengadaan',
+            error: error.message
+        });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
 
 app.get('/api/v1/penerimaan', async (req, res) => {
     let connection;
@@ -567,6 +663,68 @@ app.get('/api/v1/penerimaan/detail', async (req, res) => {
             data: rows
         });
 });
+
+app.post('/api/v1/penerimaan', async (req, res) => {
+    let connection;
+    try {
+        const { idpengadaan, iduser, details } = req.body;
+
+        if (!idpengadaan || !iduser || !Array.isArray(details) || details.length === 0) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Data tidak lengkap. Pastikan idpengadaan, iduser, dan details terisi.'
+            });
+        }
+
+        connection = await mysql.createConnection(dbConfig);
+        await connection.beginTransaction();
+
+        // Insert header penerimaan
+        const [result] = await connection.execute(
+            'INSERT INTO penerimaan (idpengadaan, iduser, status) VALUES (?, ?, ?)',
+            [idpengadaan, iduser, '1']
+        );
+
+        const idpenerimaan = result.insertId;
+
+        // Insert detail penerimaan (akan trigger kartu stok otomatis)
+        for (const detail of details) {
+            const { barang_idbarang, jumlah_terima, harga_satuan_terima } = detail;
+            const sub_total_terima = jumlah_terima * harga_satuan_terima;
+
+            await connection.execute(
+                'INSERT INTO detail_penerimaan (idpenerimaan, barang_idbarang, jumlah_terima, harga_satuan_terima, sub_total_terima) VALUES (?, ?, ?, ?, ?)',
+                [idpenerimaan, barang_idbarang, jumlah_terima, harga_satuan_terima, sub_total_terima]
+            );
+        }
+
+        await connection.commit();
+
+        // Ambil data lengkap penerimaan
+        const [newData] = await connection.execute(
+            'SELECT * FROM view_penerimaan WHERE idpenerimaan = ?',
+            [idpenerimaan]
+        );
+
+        res.status(201).json({
+            status: 'success',
+            message: 'Penerimaan berhasil ditambahkan dan kartu stok diupdate otomatis',
+            data: { idpenerimaan, details: newData }
+        });
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        console.error("Error adding penerimaan:", error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Gagal menambahkan penerimaan',
+            error: error.message
+        });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
 app.get('/api/v1/penjualan', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
@@ -590,7 +748,169 @@ app.get('/api/v1/penjualan', async (req, res) => {
                 data: rows
             });
     });
-    
+
+app.post('/api/v1/penjualan', async (req, res) => {
+    let connection;
+    try {
+        const { iduser, idmargin_penjualan, details } = req.body;
+
+        if (!iduser || !idmargin_penjualan || !Array.isArray(details) || details.length === 0) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Data tidak lengkap. Pastikan iduser, idmargin_penjualan, dan details terisi.'
+            });
+        }
+
+        connection = await mysql.createConnection(dbConfig);
+        await connection.beginTransaction();
+
+        // Ambil persentase margin
+        const [marginData] = await connection.execute(
+            'SELECT persen FROM margin_penjualan WHERE idmargin_penjualan = ?',
+            [idmargin_penjualan]
+        );
+
+        if (marginData.length === 0) {
+            throw new Error('Margin penjualan tidak ditemukan');
+        }
+
+        const persenMargin = marginData[0].persen;
+        let subtotal_nilai = 0;
+
+        // Hitung subtotal dengan menggunakan function fn_hitung_harga_jual
+        const detailsWithPrice = [];
+        for (const detail of details) {
+            const { idbarang, jumlah } = detail;
+
+            // Ambil harga beli barang
+            const [barangData] = await connection.execute(
+                'SELECT harga FROM barang WHERE idbarang = ?',
+                [idbarang]
+            );
+
+            if (barangData.length === 0) {
+                throw new Error(`Barang dengan ID ${idbarang} tidak ditemukan`);
+            }
+
+            const harga_beli = barangData[0].harga;
+
+            // Gunakan function untuk hitung harga jual
+            const [hargaJualResult] = await connection.execute(
+                'SELECT fn_hitung_harga_jual(?, ?) as harga_jual',
+                [harga_beli, persenMargin]
+            );
+
+            const harga_jual = hargaJualResult[0].harga_jual;
+            const subtotal = harga_jual * jumlah;
+            subtotal_nilai += subtotal;
+
+            detailsWithPrice.push({
+                idbarang,
+                jumlah,
+                harga_satuan: harga_jual,
+                subtotal
+            });
+        }
+
+        const ppn = Math.round(subtotal_nilai * 0.11); // PPN 11%
+        const total_nilai = subtotal_nilai + ppn;
+
+        // Insert header penjualan
+        const [result] = await connection.execute(
+            'INSERT INTO penjualan (iduser, idmargin_penjualan, subtotal_nilai, ppn, total_nilai) VALUES (?, ?, ?, ?, ?)',
+            [iduser, idmargin_penjualan, subtotal_nilai, ppn, total_nilai]
+        );
+
+        const idpenjualan = result.insertId;
+
+        // Insert detail penjualan (akan trigger kartu stok otomatis)
+        for (const detail of detailsWithPrice) {
+            await connection.execute(
+                'INSERT INTO detail_penjualan (penjualan_idpenjualan, idbarang, harga_satuan, jumlah, subtotal) VALUES (?, ?, ?, ?, ?)',
+                [idpenjualan, detail.idbarang, detail.harga_satuan, detail.jumlah, detail.subtotal]
+            );
+        }
+
+        await connection.commit();
+
+        // Ambil data lengkap penjualan
+        const [newData] = await connection.execute(
+            'SELECT * FROM view_penjualan WHERE idpenjualan = ?',
+            [idpenjualan]
+        );
+
+        res.status(201).json({
+            status: 'success',
+            message: 'Penjualan berhasil ditambahkan dengan harga menggunakan margin dan kartu stok diupdate otomatis',
+            data: { idpenjualan, details: newData }
+        });
+
+    } catch (error) {
+        if (connection) await connection.rollback();
+        console.error("Error adding penjualan:", error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Gagal menambahkan penjualan',
+            error: error.message
+        });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+app.get('/api/v1/kartu-stok', async (req, res) => {
+    let connection;
+    try {
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute(`
+            SELECT 
+                k.*,
+                b.nama as nama_barang
+            FROM kartu_stok k
+            LEFT JOIN barang b ON k.idbarang = b.idbarang
+            ORDER BY k.created_at DESC
+        `);
+        res.status(200).json({
+            status: 'success',
+            message: 'Data kartu stok berhasil diambil',
+            data: rows
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ status: 'error', message: 'Gagal mengambil data', error: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// GET kartu stok by barang
+app.get('/api/v1/kartu-stok/:idbarang', async (req, res) => {
+    let connection;
+    try {
+        const { idbarang } = req.params;
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute(`
+            SELECT 
+                k.*,
+                b.nama as nama_barang
+            FROM kartu_stok k
+            LEFT JOIN barang b ON k.idbarang = b.idbarang
+            WHERE k.idbarang = ?
+            ORDER BY k.created_at DESC
+        `, [idbarang]);
+        res.status(200).json({
+            status: 'success',
+            message: 'Data kartu stok berhasil diambil',
+            data: rows
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ status: 'error', message: 'Gagal mengambil data', error: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
 
 
 app.listen(port, () => {

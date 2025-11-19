@@ -77,6 +77,7 @@ export default function EditBarangPage() {
                 setNama(barangData.nama || "");
                 setJenis(barangData.jenis || "B");
                 setIdSatuan(barangData.idsatuan ? String(barangData.idsatuan) : "");
+                setHarga(barangData.harga ? String(barangData.harga) : "0");
                 setStatus(barangData.status ?? 1);
 
                 // Isi dropdown satuan
@@ -115,6 +116,11 @@ export default function EditBarangPage() {
             setSubmitError("Satuan wajib dipilih.");
             return;
         }
+        const hargaNum = Number(harga);
+if (isNaN(hargaNum) || hargaNum < 0) {
+    setSubmitError("Harga tidak valid atau tidak boleh negatif.");
+    return;
+}
         
 setIsSaving(true);
 setSubmitError(null);
@@ -124,7 +130,7 @@ const dataToUpdate = {
     jenis: jenis,
     idsatuan: Number(idSatuan),
     status: status,
-    harga: Number(harga)  
+    harga: hargaNum  
 };
 
 console.log("📤 Data yang akan dikirim:", dataToUpdate);
@@ -173,7 +179,21 @@ console.log("🔑 ID Barang:", barangId);
                                 className="mt-1.5"
                             />
                         </div>
-
+                        <div>
+                            <Label htmlFor="harga">Harga Satuan Barang</Label>
+                            <Input
+                                id="harga"
+                                type="text"
+                               
+                                min="0"
+                                value={harga}
+                                onChange={(e) => setHarga(e.target.value)}
+                                placeholder="Masukkan Harga barang"
+                                required
+                                disabled={isSaving}
+                                className="mt-1.5"
+                            />
+                        </div>
                         <div>
                             <Label htmlFor="jenis">Jenis</Label>
                             <Select

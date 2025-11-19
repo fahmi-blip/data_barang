@@ -220,16 +220,60 @@ export async function fetchDetailPengadaanData(): Promise<ViewDetailPengadaan[]>
     const response = await fetch(`${API_BASE_URL}/pengadaan/detail`);
     return handleResponse<ViewDetailPengadaan[]>(response);
 }
-
+export interface NewPengadaanData {
+    user_id: number;
+    vendor_id: number;
+    subtotal_nilai: number;
+    details: Array<{
+        idbarang: number;
+        jumlah: number;
+        harga_satuan: number;
+    }>;
+}
+export async function addPenerimaanData(data: NewPenerimaanData): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/penerimaan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+    return handleResponse<any>(response);
+}
 export async function fetchDetailPenerimaanData(): Promise<ViewDetailPenerimaan[]> {
     const response = await fetch(`${API_BASE_URL}/penerimaan/detail`);
     return handleResponse<ViewDetailPenerimaan[]>(response);
+}
+export interface NewPenerimaanData {
+    idpengadaan: number;
+    iduser: number;
+    details: Array<{
+        barang_idbarang: number;
+        jumlah_terima: number;
+        harga_satuan_terima: number;
+    }>;
 }
 
 export async function fetchDetailPenjualanData(): Promise<ViewDetailPenjualan[]> {
     const response = await fetch(`${API_BASE_URL}/penjualan/detail`);
     return handleResponse<ViewDetailPenjualan[]>(response);
 }
+export interface NewPenjualanData {
+    iduser: number;
+    idmargin_penjualan: number;
+    details: Array<{
+        idbarang: number;
+        jumlah: number;
+    }>;
+}
+
+export async function addPenjualanData(data: NewPenjualanData): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/penjualan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+    return handleResponse<any>(response);
+}
+
 
 export async function addPengadaanData(data: PengadaanSPBody): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/pengadaan`, {
@@ -247,4 +291,25 @@ export async function addDetailPenerimaanData(data: NewDetailPenerimaanBody): Pr
         body: JSON.stringify(data),
     });
     return handleResponse<any>(response);
+}
+export interface KartuStok {
+    idkartu_stok: number;
+    jenis_transaksi: string;
+    masuk: number;
+    keluar: number;
+    stock: number;
+    created_at: string;
+    idtransaksi: number;
+    idbarang: number;
+    nama_barang?: string;
+}
+
+export async function fetchKartuStokData(): Promise<KartuStok[]> {
+    const response = await fetch(`${API_BASE_URL}/kartu-stok`);
+    return handleResponse<KartuStok[]>(response);
+}
+
+export async function fetchKartuStokByBarang(idbarang: number): Promise<KartuStok[]> {
+    const response = await fetch(`${API_BASE_URL}/kartu-stok/${idbarang}`);
+    return handleResponse<KartuStok[]>(response);
 }
