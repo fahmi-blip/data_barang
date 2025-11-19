@@ -156,38 +156,67 @@ export default function TambahPengadaanPage() {
 
     // Handler submit form
     const handleSubmit = async () => {
-        setLoading(true);
-        setError(null);
+    setLoading(true);
+    setError(null);
 
-        if (!idVendor) {
-            setError("Vendor wajib dipilih!");
-            setLoading(false);
-            return;
-        }
+    if (!idVendor) {
+        setError("Vendor wajib dipilih!");
+        setLoading(false);
+        return;
+    }
 
-        if (detailItems.length === 0) {
-            setError("Minimal harus ada 1 item barang!");
-            setLoading(false);
-            return;
-        }
+    if (detailItems.length === 0) {
+        setError("Minimal harus ada 1 item barang!");
+        setLoading(false);
+        return;
+    }
 
-        const dataUntukSP = {
-            p_user_id: 1, // GANTI dengan ID user yang sedang login
-            p_vendor_id: parseInt(idVendor),
-            p_subtotal: calculateSubtotal(),
-            p_ppn: ppn
-        };
+    // Hitung nilai-nilai
+    const subtotal = calculateSubtotal();
+    const ppnValue = (subtotal * ppn) / 100;
 
-        try {
-            const hasil = await addPengadaanData(dataUntukSP);
-            alert('Pengadaan baru berhasil ditambahkan! ID: ' + hasil.idpengadaan);
-            navigate('/pengadaan');
-        } catch (err: any) {
-            setError(err.message || "Terjadi kesalahan saat menyimpan.");
-        } finally {
-            setLoading(false);
-        }
+    // Siapkan data untuk dikirim ke backend
+    const dataToSend = {
+        user_id: 1, // GANTI dengan ID user yang sedang login
+        vendor_id: parseInt(idVendor),
+        subtotal_nilai: subtotal,
+        ppn: ppnValue,
+        details: detailItems.map(item => ({
+            idbarang: item.idbarang,
+            jumlah: item.jumlah,
+            harga_satuan: item.harga_satuan
+        }))
     };
+
+    console.log("📤 Data yang akan dikirim:", JSON.stringify(dataToSend, null, 2));
+
+    try {
+        const response = await fetch('http://localhost:8000/api/v1/pengadaan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dataToSend)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Gagal menyimpan pengadaan');
+        }
+
+        console.log("✅ Response dari server:", result);
+        
+        alert(`Pengadaan berhasil ditambahkan!\nID Pengadaan: ${result.data.idpengadaan}`);
+        navigate('/pengadaan');
+        
+    } catch (err: any) {
+        console.error("❌ Error:", err);
+        setError(err.message || "Terjadi kesalahan saat menyimpan.");
+    } finally {
+        setLoading(false);
+    }
+};
 
     if (loadingData) {
         return (

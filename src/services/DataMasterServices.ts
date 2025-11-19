@@ -275,7 +275,7 @@ export async function addPenjualanData(data: NewPenjualanData): Promise<any> {
 }
 
 
-export async function addPengadaanData(data: PengadaanSPBody): Promise<any> {
+export async function addPengadaanData(data: NewPengadaanData): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/pengadaan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

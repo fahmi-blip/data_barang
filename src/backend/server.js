@@ -533,7 +533,7 @@ app.get('/api/v1/pengadaan/detail', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
         
-        const [rows] = await connection.execute('SELECT * FROM detail_pengadaan');
+        const [rows] = await connection.execute('SELECT * FROM view_detail_pengadaan');
 
         res.status(200).json({
             status: 'success',
@@ -541,69 +541,41 @@ app.get('/api/v1/pengadaan/detail', async (req, res) => {
             data: rows
         });
 });
-// Di server.js
-app.post('/api/v1/pengadaan/with-details', async (req, res) => {
-    const { header, items } = req.body;
-    const connection = await mysql.createConnection(dbConfig);
-    
-    try {
-        await connection.beginTransaction();
-        
-        // Insert header
-        const [headerResult] = await connection.execute(
-            'INSERT INTO pengadaan () VALUES (...)',
-            [...]
-        );
-        
-        // Insert details
-        for (const item of items) {
-            await connection.execute(
-                'INSERT INTO detail_pengadaan (idbarang,harga_satuan,jumlah,sub_total) VALUES (?,?,?,?)',
-                [headerResult.insertId, item.idbarang, item.jumlah, ...]
-            );
-        }
-        
-        await connection.commit();
-        res.status(201).json({ status: 'success', data: headerResult });
-    } catch (error) {
-        await connection.rollback();
-        res.status(500).json({ status: 'error', message: error.message });
-    } finally {
-        await connection.end();
-    }
-});
 app.post('/api/v1/pengadaan', async (req, res) => {
     let connection;
     try {
-        const { user_id, vendor_id, subtotal_nilai, details } = req.body;
+        const { user_id, vendor_id, subtotal_nilai, ppn, details } = req.body;
 
-        if (!user_id || !vendor_id || !subtotal_nilai || !Array.isArray(details) || details.length === 0) {
+        // Validasi input
+        if (!user_id || !vendor_id || !subtotal_nilai || ppn === undefined || !Array.isArray(details) || details.length === 0) {
             return res.status(400).json({
                 status: 'fail',
-                message: 'Data tidak lengkap. Pastikan user_id, vendor_id, subtotal_nilai, dan details terisi.'
+                message: 'Data tidak lengkap. Pastikan user_id, vendor_id, subtotal_nilai, ppn, dan details terisi.'
             });
         }
 
         connection = await mysql.createConnection(dbConfig);
         await connection.beginTransaction();
 
-        // Panggil Stored Procedure untuk membuat header pengadaan
-        const [result] = await connection.execute(
-            'CALL sp_tambah_pengadaan(?, ?, ?)',
-            [user_id, vendor_id, subtotal_nilai]
+        // Hitung total_nilai
+        const total_nilai = subtotal_nilai + ppn;
+
+        // Insert header pengadaan
+        const [headerResult] = await connection.execute(
+            'INSERT INTO pengadaan (user_iduser, vendor_idvendor, subtotal_nilai, ppn, total_nilai, status) VALUES (?, ?, ?, ?, ?, ?)',
+            [user_id, vendor_id, subtotal_nilai, ppn, total_nilai, '1']
         );
 
-        // Ambil ID pengadaan yang baru dibuat
-        const [pengadaanData] = await connection.execute(
-            'SELECT idpengadaan FROM pengadaan WHERE user_iduser = ? AND vendor_idvendor = ? ORDER BY timestamp DESC LIMIT 1',
-            [user_id, vendor_id]
-        );
-
-        const idpengadaan = pengadaanData[0].idpengadaan;
+        const idpengadaan = headerResult.insertId;
 
         // Insert detail pengadaan
         for (const detail of details) {
             const { idbarang, jumlah, harga_satuan } = detail;
+            
+            if (!idbarang || !jumlah || !harga_satuan) {
+                throw new Error('Data detail tidak lengkap');
+            }
+            
             const sub_total = jumlah * harga_satuan;
 
             await connection.execute(
@@ -655,7 +627,7 @@ app.get('/api/v1/penerimaan/detail', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
         
-        const [rows] = await connection.execute('SELECT * FROM detail_penerimaan');
+        const [rows] = await connection.execute('SELECT * FROM view_detail_penerimaan');
 
         res.status(200).json({
             status: 'success',
@@ -687,7 +659,6 @@ app.post('/api/v1/penerimaan', async (req, res) => {
 
         const idpenerimaan = result.insertId;
 
-        // Insert detail penerimaan (akan trigger kartu stok otomatis)
         for (const detail of details) {
             const { barang_idbarang, jumlah_terima, harga_satuan_terima } = detail;
             const sub_total_terima = jumlah_terima * harga_satuan_terima;
@@ -700,7 +671,6 @@ app.post('/api/v1/penerimaan', async (req, res) => {
 
         await connection.commit();
 
-        // Ambil data lengkap penerimaan
         const [newData] = await connection.execute(
             'SELECT * FROM view_penerimaan WHERE idpenerimaan = ?',
             [idpenerimaan]
@@ -740,7 +710,7 @@ app.get('/api/v1/penjualan', async (req, res) => {
         let connection;
             connection = await mysql.createConnection(dbConfig);
             
-            const [rows] = await connection.execute('SELECT * FROM detail_penjualan');
+            const [rows] = await connection.execute('SELECT * FROM view_detail_penjualan');
     
             res.status(200).json({
                 status: 'success',
