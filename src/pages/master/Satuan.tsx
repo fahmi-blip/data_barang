@@ -15,14 +15,14 @@ export default function SatuanPage() {
   const [satuanList, setSatuanList] = useState<(Satuan | SatuanAktif)[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "active">("all");
+  const [filter, setFilter] = useState<"all" | "active">("active");
 
   const loadData = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      if (filter === "active") {
+      if (filter === 'active') {
         const data: SatuanAktif[] = await fetchSatuanDataAktif();
         setSatuanList(data);
       } else {
@@ -64,7 +64,7 @@ export default function SatuanPage() {
   };
 
   const toggleFilter = () => {
-    setFilter(prev => (prev === "all" ? "active" : "all"));
+    setFilter(prev => (prev === "active" ? "all" : "active"));
   };
 
   return (
@@ -106,17 +106,17 @@ export default function SatuanPage() {
               <div className="max-w-full overflow-x-auto">
                 <Table className="w-full">
                   <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50 dark:bg-white/[0.03]">
-                    {filter === "all" ? (
+                    {filter === "active" ? (
                       <TableRow>
                         <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Satuan</TableCell>
                         <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Satuan</TableCell>
-                        <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
-                        <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
                       </TableRow>
                     ) : (
                       <TableRow>
                         <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Satuan</TableCell>
                         <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Satuan</TableCell>
+                        <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
+                        <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
                       </TableRow>
                     )}
                   </TableHeader>
@@ -124,7 +124,7 @@ export default function SatuanPage() {
                     {satuanList.length === 0 ? (
                       <TableRow className="hover:bg-gray-50 dark:hover:bg-white/5">
                         <TableCell
-                          colSpan={filter === "active" ? 2 : 4}
+                          colSpan={filter === "all" ? 2 : 4}
                           className="px-5 py-6 text-center text-gray-500 dark:text-gray-400"
                         >
                           Tidak ada data satuan.

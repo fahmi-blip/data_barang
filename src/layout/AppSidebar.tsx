@@ -59,6 +59,11 @@ const navItems: NavItem[] = [
       { name: "Penjualan", path: "/penjualan", pro: false },
     ],
   },
+  {
+    icon: <BoxCubeIcon />,
+    name: "Kartu Stock",
+    path: "/kartu-stock",
+  },
   // {
   //   icon: <FolderIcon />, // Menggunakan TableIcon untuk Transaksi
   //   name: "Detail Transaksi",

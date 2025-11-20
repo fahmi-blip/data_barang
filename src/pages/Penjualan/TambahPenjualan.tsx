@@ -241,22 +241,6 @@ export default function TambahPenjualanPage() {
             <PageMeta title="Tambah Penjualan" description=""/>
             <PageBreadcrumb pageTitle="Tambah Transaksi Penjualan" />
             
-            {/* Info Draft */}
-            {details.length > 0 && (
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300 flex justify-between items-center">
-                    <span>
-                        <strong>Mode Draft:</strong> Data penjualan tersimpan otomatis.
-                    </span>
-                    <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={handleClearDraft} 
-                        className="bg-white border-red-200 text-red-600 hover:bg-red-50"
-                    >
-                        Hapus Draft
-                    </Button>
-                </div>
-            )}
 
             <form className="space-y-6">
                 <ComponentCard title="Informasi Penjualan">

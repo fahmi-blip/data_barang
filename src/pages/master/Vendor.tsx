@@ -17,7 +17,7 @@ export default function VendorPage() {
   const [vendorList, setVendorList] = useState<(Vendor | VendorAktif)[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "active">("all");
+  const [filter, setFilter] = useState<"all" | "active">("active");
 
   const loadData = async () => {
     setLoading(true);

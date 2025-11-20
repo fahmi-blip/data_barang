@@ -20,7 +20,7 @@ export default function MarginPenjualanPage() {
   const [marginPenjualanList, setMarginPenjualanList] = useState<(MarginPenjualan | MarginPenjualanAktif)[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "active">("all");
+  const [filter, setFilter] = useState<"all" | "active">("active");
 
   const loadData = async () => {
     setLoading(true);
@@ -58,7 +58,15 @@ const renderStatusBadge = (status: StatusToko) => {
 const toggleFilter = () => {
         setFilter(prev => (prev === "all" ? "active" : "all"));
     };
-
+const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
   return (
     <>
       <PageMeta title="Data Vendor" description="Halaman untuk mengelola data master Vendor." />
@@ -128,16 +136,16 @@ const toggleFilter = () => {
                         <TableCell className="px-5 py-4 text-sm">{item.idmargin_penjualan}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.persen}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.dibuat_oleh}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm">{item.update_at}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{formatDate(item.update_at)}</TableCell>
                           </TableRow>
                         ) : (
                       <TableRow key={item.idmargin_penjualan} className="hover:bg-gray-50 dark:hover:bg-white/5">
                         <TableCell className="px-5 py-4 text-sm">{item.idmargin_penjualan}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm">{item.created_at}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{formatDate(item.created_at)}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.persen}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{renderStatusBadge(item.status)}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.dibuat_oleh}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm">{item.update_at}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{formatDate(item.update_at)}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">
                             <div className="flex justify-center items-center space-x-2">
                                <Button

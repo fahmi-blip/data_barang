@@ -49,6 +49,15 @@ export default function PenerimaanPage() {
     </Badge>
   );
 };
+const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
   return (
     <>
       <PageMeta title="Data Vendor" description="Halaman untuk mengelola data master Vendor." />
@@ -95,7 +104,7 @@ export default function PenerimaanPage() {
                     {penerimaanList.map((item) => (
                       <TableRow key={item.idpenerimaan} className="hover:bg-gray-50 dark:hover:bg-white/5">
                         <TableCell className="px-5 py-4 text-sm">{item.idpenerimaan}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm">{item.tanggal_penerimaan}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{formatDate(item.tanggal_penerimaan)}</TableCell>
                         <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_vendor}</TableCell>
                         <TableCell className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white/90">{item.nama_user}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{renderStatusBadge(item.status)}</TableCell>

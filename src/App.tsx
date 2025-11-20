@@ -31,6 +31,7 @@ import MarginPenjualanPage from "./pages/master/MarginPenjualan";
 import PenjualanPage from "./pages/Penjualan/Penjualan";
 import TambahPenjualanPage from "./pages/Penjualan/TambahPenjualan";
 import DetailPenjualanPage from "./pages/Penjualan/DetailPenjualan";
+import KartuStockPage from "./pages/Penjualan/KartuStok";
 // import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
@@ -70,6 +71,7 @@ export default function App() {
             <Route path="/penjualan" element={<PenjualanPage />} />
             <Route path="/penjualan/tambah" element={<TambahPenjualanPage />} />
             <Route path="/penjualan/detail" element={<DetailPenjualanPage />} />
+            <Route path="/kartu-stock" element={<KartuStockPage />} />
             
             {/* Others Page */}
             {/* <Route path="/profile" element={<UserProfiles />} />

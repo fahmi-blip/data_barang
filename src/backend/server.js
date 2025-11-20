@@ -849,7 +849,7 @@ app.get('/api/v1/kartu-stok', async (req, res) => {
                 b.nama as nama_barang
             FROM kartu_stok k
             LEFT JOIN barang b ON k.idbarang = b.idbarang
-            ORDER BY k.created_at DESC
+            ORDER BY k.created_at ASC
         `);
         res.status(200).json({
             status: 'success',
@@ -876,7 +876,7 @@ app.get('/api/v1/kartu-stok/:idbarang', async (req, res) => {
             FROM kartu_stok k
             LEFT JOIN barang b ON k.idbarang = b.idbarang
             WHERE k.idbarang = ?
-            ORDER BY k.created_at DESC
+            ORDER BY k.created_at ASC
         `, [idbarang]);
         res.status(200).json({
             status: 'success',

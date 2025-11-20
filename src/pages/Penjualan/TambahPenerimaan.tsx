@@ -98,12 +98,20 @@ export default function TambahPenerimaanPage() {
                     fetchDetailPengadaanData()
                 ]);
 
-                // Filter pengadaan status = 1 (Aktif)
+                const formatDate = (dateString: string) => {
+                    return new Date(dateString).toLocaleString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                };
                 const pengadaanOpts = pengadaans
                     .filter(p => Number(p.status) === 1)
                     .map(p => ({
                         value: String(p.idpengadaan),
-                        label: `ID: ${p.idpengadaan} - ${p.nama_vendor} (${p.tanggal_pengadaan})`
+                        label: `ID: ${p.idpengadaan} - ${p.nama_vendor} (${formatDate(p.tanggal_pengadaan)})`
                     }));
                 setPengadaanOptions(pengadaanOpts);
 
@@ -148,13 +156,7 @@ export default function TambahPenerimaanPage() {
     const validatePenerimaan = () => {
         if (targetItems.length === 0) return { valid: false, message: "Data detail pengadaan tidak ditemukan." };
 
-        // 1. Cek Jumlah Item Unik
-        // Note: Ini validasi sederhana. Idealnya kita grouping by idbarang.
-        // Disini kita asumsikan user menginput barang yang sama hanya sekali di tabel penerimaan.
-        
         for (const target of targetItems) {
-            // Cari barang ini di daftar terima (match by Nama karena view detail pengadaan mungkin tidak ada idbarang eksplisit di tipe data Anda, sesuaikan jika ada)
-            // Best practice: gunakan ID. Jika ViewDetailPengadaan belum punya idbarang, gunakan nama sebagai fallback.
             const receivedItem = detailItems.find(d => d.nama_barang === target.nama_barang); 
             
             if (!receivedItem) {
@@ -176,7 +178,6 @@ export default function TambahPenerimaanPage() {
         return { valid: true, message: "Semua barang sesuai." };
     };
 
-    // --- Handlers ---
 
     const handleAddItem = () => {
         if (!selectedBarang) return setError("Pilih barang terlebih dahulu!");
@@ -203,6 +204,7 @@ export default function TambahPenerimaanPage() {
                 }
             }
         }
+        
 
         const newItem: DetailItem = {
             id: `temp-${Date.now()}`,

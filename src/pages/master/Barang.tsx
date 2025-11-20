@@ -111,7 +111,7 @@ export default function BarangPage() {
                                                 <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID</TableCell>
                                                 <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Nama Barang</TableCell>
                                                 <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Satuan</TableCell>
-                                                
+                                                <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Harga</TableCell>
                                             </TableRow>
                                         ) : (
                                             <TableRow>
@@ -143,6 +143,8 @@ export default function BarangPage() {
                                                         <TableCell className="px-5 py-4 text-sm">{item.idbarang}</TableCell>
                                                         <TableCell className="px-5 py-4 text-sm">{item.nama}</TableCell>
                                                         <TableCell className="px-5 py-4 text-sm">{item.nama_satuan || "-"}</TableCell>
+                                                        <TableCell className="px-5 py-4 text-sm">{item.harga}</TableCell>
+                                                       
                                                     </TableRow>
                                                 ) : (
                                                     <TableRow key={item.idbarang} className="hover:bg-gray-50 dark:hover:bg-white/5">
