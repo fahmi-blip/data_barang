@@ -118,6 +118,16 @@ export interface MarginPenjualanAktif {
   dibuat_oleh: number | null;
   update_at: string;
 }
+export interface KartuStok {
+  idkartu_stok: number;
+  jenis_transaksi: string;
+  masuk: number;
+  keluar: number;
+  stok: number;
+  create_at: string;
+  idtransaksi: number;
+  idbarang: string;
+}
 
 export interface ViewDetailPenjualan  {
   iddetail_penjualan: number;

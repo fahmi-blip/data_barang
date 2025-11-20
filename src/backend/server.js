@@ -695,6 +695,17 @@ app.post('/api/v1/penerimaan', async (req, res) => {
     }
 });
 
+app.get('/api/v1/stok', async (req, res) => {
+    let connection;
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute('SELECT * FROM kartu_stok');
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Data satuan berhasil diambil',
+            data: rows
+        });
+    });
 app.get('/api/v1/penjualan', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
@@ -853,7 +864,6 @@ app.get('/api/v1/kartu-stok', async (req, res) => {
     }
 });
 
-// GET kartu stok by barang
 app.get('/api/v1/kartu-stok/:idbarang', async (req, res) => {
     let connection;
     try {
