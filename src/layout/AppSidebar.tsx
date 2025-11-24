@@ -346,13 +346,14 @@ const AppSidebar: React.FC = () => {
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <img
+              {/* <img
                 className="dark:hidden"
                 src="/images/logo/logo.svg"
                 alt="Logo"
                 width={150}
                 height={40}
-              />
+              /> */}
+              <h1 className="font-semibold text-2xl">ADHI STORE</h1>
               <img
                 className="hidden dark:block"
                 src="/images/logo/logo-dark.svg"

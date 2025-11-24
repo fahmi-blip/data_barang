@@ -74,8 +74,6 @@ const formatDate = (dateString: string) => {
                 onClick={() => navigate('/pengadaan/detail')}>
                     Detail Pengadaan
                 </Button>
-            </div>
-            <div className="flex justify-end mb-4">
                 <Button size="sm" variant="primary"
                 onClick={() => navigate('/pengadaan/tambah')}>
                     Tambah Pengadaan Baru

@@ -204,6 +204,19 @@ export default function TambahPenerimaanPage() {
                 }
             }
         }
+        const existingItemIndex = detailItems.findIndex(d => d.idbarang === parseInt(selectedBarang));
+        if (existingItemIndex >= 0) {
+            if (confirm("Barang ini sudah ada di daftar. Apakah ingin menambahkan jumlahnya?")) {
+                const newDetails = [...detailItems];
+                newDetails[existingItemIndex].jumlah_terima += jumlahTerima;
+                setDetailItems(newDetails);
+                setSelectedBarang('');
+                setJumlahTerima(0);
+                return;
+            } else {
+                return;
+            }
+        }
         
 
         const newItem: DetailItem = {
@@ -234,7 +247,7 @@ export default function TambahPenerimaanPage() {
             localStorage.removeItem(STORAGE_KEY);
         }
     };
-
+    
     const calculateTotal = () => {
         return detailItems.reduce((sum, item) => sum + item.sub_total_terima, 0);
     };

@@ -32,7 +32,7 @@ interface DetailItem {
 export default function TambahPengadaanPage() {
     // State untuk Header Pengadaan
     const [idVendor, setIdVendor] = useState('');
-    const [ppn, setPpn] = useState(11); // Default PPN 11%
+    const [ppn, setPpn] = useState(10); // Default PPN 11%
     
     // State untuk Detail Items
     const [detailItems, setDetailItems] = useState<DetailItem[]>([]);

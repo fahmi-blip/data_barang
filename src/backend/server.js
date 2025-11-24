@@ -831,7 +831,7 @@ app.post('/api/v1/penjualan', async (req, res) => {
         console.error("Error adding penjualan:", error);
         res.status(500).json({
             status: 'error',
-            message: 'Gagal menambahkan penjualan',
+            message: 'Gagal menambahkan penjualan, Stokmu kurang!',
             error: error.message
         });
     } finally {

@@ -76,7 +76,7 @@ const formatDate = (dateString: string) => {
         <ComponentCard title="Daftar Margin Penjualan">
           <div className="flex justify-end mb-4">
                 <Button size="sm" variant="primary">
-                    Tambah Satuan Baru
+                    Tambah Margin 
                 </Button>
                 <Button
                     size="sm"
