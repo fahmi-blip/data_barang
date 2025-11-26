@@ -518,17 +518,32 @@ app.get('/api/v1/margin/active', async (req, res) => {
 
 app.get('/api/v1/pengadaan', async (req, res) => {
     let connection;
+    try {
         connection = await mysql.createConnection(dbConfig);
         
-        const [rows] = await connection.execute('SELECT * FROM view_pengadaan');
+        const query = `
+            SELECT vp.*, 
+            CASE WHEN p.idpenerimaan IS NOT NULL THEN 1 ELSE 0 END AS is_received 
+            FROM view_pengadaan vp 
+            LEFT JOIN penerimaan p ON vp.idpengadaan = p.idpengadaan
+            ORDER BY vp.tanggal_pengadaan ASC
+        `;
         
+        const [rows] = await connection.execute(query);
 
         res.status(200).json({
             status: 'success',
-            message: 'Data satuan berhasil diambil',
+            message: 'Data pengadaan berhasil diambil',
             data: rows
         });
+    } catch (error) {
+        console.error("Error fetching pengadaan:", error);
+        res.status(500).json({ status: 'error', message: 'Gagal mengambil data pengadaan', error: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
 });
+
 app.get('/api/v1/pengadaan/detail', async (req, res) => {
     let connection;
         connection = await mysql.createConnection(dbConfig);
@@ -890,8 +905,6 @@ app.get('/api/v1/kartu-stok/:idbarang', async (req, res) => {
         if (connection) await connection.end();
     }
 });
-
-
 
 app.listen(port, () => {
     console.log(`Node.js API server berjalan di http://localhost:${port}`);

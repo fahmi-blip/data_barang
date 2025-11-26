@@ -1,4 +1,3 @@
-// src/pages/Penjualan/TambahPenerimaan.tsx
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
@@ -108,7 +107,7 @@ export default function TambahPenerimaanPage() {
                     });
                 };
                 const pengadaanOpts = pengadaans
-                    .filter(p => Number(p.status) === 1)
+                    .filter(p => Number(p.status) === 1 && !p.is_received) // UPDATE: Filter yang belum diterima
                     .map(p => ({
                         value: String(p.idpengadaan),
                         label: `ID: ${p.idpengadaan} - ${p.nama_vendor} (${formatDate(p.tanggal_pengadaan)})`
@@ -321,19 +320,6 @@ export default function TambahPenerimaanPage() {
             <PageBreadcrumb pageTitle="Tambah Penerimaan Baru" />
             
             <div className="space-y-6">
-                {/* Info Draft
-                {detailItems.length > 0 && (
-                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300 flex justify-between items-center">
-                        <span>
-                            <strong>Mode Cicil (Draft):</strong> Data Anda tersimpan otomatis di browser. 
-                            Belum masuk database sampai Anda klik "Simpan Permanen".
-                        </span>
-                        <Button size="sm" variant="outline" onClick={handleClearDraft} className="bg-white border-red-200 text-red-600 hover:bg-red-50">
-                            Hapus Draft
-                        </Button>
-                    </div>
-                )} */}
-
                 <ComponentCard title="Informasi Penerimaan">
                     <div className="space-y-4">
                         <div>
@@ -348,6 +334,11 @@ export default function TambahPenerimaanPage() {
                                 disabled={loading || pengadaanOptions.length === 0}
                                 className="dark:bg-gray-900"
                             />
+                            {!loading && pengadaanOptions.length === 0 && (
+                                <p className="text-xs text-yellow-600 mt-1">
+                                    Tidak ada pengadaan aktif yang belum diterima.
+                                </p>
+                            )}
                         </div>
                         
                        {idPengadaan && targetItems.length > 0 && (

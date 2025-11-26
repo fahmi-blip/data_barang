@@ -59,6 +59,7 @@ export interface ViewPengadaan{
   ppn: number;
   total_nilai: number;
   status: StatusToko;
+  is_received?: number; // Field baru untuk status penerimaan (0: belum, 1: sudah)
 }
 
 export interface ViewPenerimaan {

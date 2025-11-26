@@ -1,5 +1,3 @@
-// src/pages/Master/SatuanPage.tsx
-
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
@@ -50,6 +48,14 @@ export default function PengadaanPage() {
     </Badge>
   );
 };
+
+const renderPenerimaanBadge = (isReceived: number | undefined) => {
+  if (isReceived === 1) {
+    return <Badge size="sm" color="success">Diterima</Badge>;
+  }
+  return <Badge size="sm" color="warning">Belum Diterima</Badge>;
+};
+
 const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleString('id-ID', {
             day: 'numeric',
@@ -101,7 +107,7 @@ const formatDate = (dateString: string) => {
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">SubTotal Nilai</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">PPN</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Total Nilai</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Status Penerimaan</TableCell>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">Aksi</TableCell>
                     </TableRow>
                   </TableHeader>
@@ -115,7 +121,7 @@ const formatDate = (dateString: string) => {
                         <TableCell className="px-5 py-4 text-sm">{item.subtotal_nilai}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.ppn}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">{item.total_nilai}</TableCell>
-                        <TableCell className="px-5 py-4 text-sm">{renderStatusBadge(item.status)}</TableCell>
+                        <TableCell className="px-5 py-4 text-sm">{renderPenerimaanBadge(item.is_received)}</TableCell>
                         <TableCell className="px-5 py-4 text-sm">
                             <div className="flex justify-center items-center space-x-2">
                               {/* <Button
