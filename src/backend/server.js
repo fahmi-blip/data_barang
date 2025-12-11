@@ -1,4 +1,3 @@
-// server.js - Backend API menggunakan Node.js dan Express// Import koneksi pool dari db.js
 
 const express = require('express');
 const mysql = require('mysql2/promise');
@@ -280,7 +279,6 @@ app.get('/api/v1/satuan/:id', async (req, res) => {
     }
 });
 
-// POST - Tambah satuan baru
 app.post('/api/v1/satuan', async (req, res) => {
     let connection;
     try {
@@ -520,13 +518,19 @@ app.get('/api/v1/pengadaan', async (req, res) => {
     let connection;
     try {
         connection = await mysql.createConnection(dbConfig);
-        
         const query = `
-            SELECT vp.*, 
-            CASE WHEN p.idpenerimaan IS NOT NULL THEN 1 ELSE 0 END AS is_received 
-            FROM view_pengadaan vp 
-            LEFT JOIN penerimaan p ON vp.idpengadaan = p.idpengadaan
-            ORDER BY vp.tanggal_pengadaan ASC
+            SELECT DISTINCT
+                vp.idpengadaan, 
+                vp.tanggal_pengadaan, 
+                vp.nama_user, 
+                vp.nama_vendor, 
+                vp.subtotal_nilai, 
+                vp.ppn, 
+                vp.total_nilai, 
+                vp.status,
+                (SELECT COUNT(idpenerimaan) FROM penerimaan WHERE idpengadaan = vp.idpengadaan) AS is_received
+            FROM view_pengadaan vp
+            ORDER BY vp.tanggal_pengadaan DESC
         `;
         
         const [rows] = await connection.execute(query);
@@ -561,7 +565,6 @@ app.post('/api/v1/pengadaan', async (req, res) => {
     try {
         const { user_id, vendor_id, subtotal_nilai, ppn, details } = req.body;
 
-        // Validasi input
         if (!user_id || !vendor_id || !subtotal_nilai || ppn === undefined || !Array.isArray(details) || details.length === 0) {
             return res.status(400).json({
                 status: 'fail',
@@ -572,18 +575,21 @@ app.post('/api/v1/pengadaan', async (req, res) => {
         connection = await mysql.createConnection(dbConfig);
         await connection.beginTransaction();
 
-        // Hitung total_nilai
-        const total_nilai = subtotal_nilai + ppn;
+        // const total_nilai = subtotal_nilai + ppn;
 
-        // Insert header pengadaan
-        const [headerResult] = await connection.execute(
-            'INSERT INTO pengadaan (user_iduser, vendor_idvendor, subtotal_nilai, ppn, total_nilai, status) VALUES (?, ?, ?, ?, ?, ?)',
-            [user_id, vendor_id, subtotal_nilai, ppn, total_nilai, '1']
+        // const [headerResult] = await connection.execute(
+        //     'INSERT INTO pengadaan (user_iduser, vendor_idvendor, subtotal_nilai, ppn, total_nilai, status) VALUES (?, ?, ?, ?, ?, ?)',
+        //     [user_id, vendor_id, subtotal_nilai, ppn, total_nilai, '1']
+        // );
+        await connection.execute(
+            'CALL sp_tambah_pengadaan (?, ?, ?)',
+            [user_id, vendor_id, subtotal_nilai]
         );
+        
+        // const idpengadaan = headerResult.insertId;
+        const [rows] = await connection.execute('SELECT LAST_INSERT_ID() as id');
+        const idpengadaan = rows[0].id;
 
-        const idpengadaan = headerResult.insertId;
-
-        // Insert detail pengadaan
         for (const detail of details) {
             const { idbarang, jumlah, harga_satuan } = detail;
             
@@ -629,14 +635,28 @@ app.post('/api/v1/pengadaan', async (req, res) => {
 
 app.get('/api/v1/penerimaan', async (req, res) => {
     let connection;
-    connection = await mysql.createConnection(dbConfig);
-    const [rows] = await connection.execute('SELECT * FROM view_penerimaan');
-    
-    res.status(200).json({
-        status: 'success',
-        message: 'Data satuan berhasil diambil',
-        data: rows
-    });
+    try {
+        connection = await mysql.createConnection(dbConfig);
+        
+        const query = `
+            SELECT DISTINCT 
+                vp.idpenerimaan, 
+                vp.tanggal_penerimaan, 
+                vp.nama_user,
+                vp.idpengadaan,
+                vp.nama_vendor,
+                vp.status
+            FROM view_penerimaan vp
+            ORDER BY vp.tanggal_penerimaan DESC 
+        `;
+        const [rows] = await connection.execute(query);
+        res.status(200).json({ status: 'success', data: rows });
+    } catch (error) {
+        console.error("Error fetching penerimaan:", error);
+        res.status(500).json({ status: 'error', message: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
 });
 app.get('/api/v1/penerimaan/detail', async (req, res) => {
     let connection;
@@ -723,15 +743,28 @@ app.get('/api/v1/stok', async (req, res) => {
     });
 app.get('/api/v1/penjualan', async (req, res) => {
     let connection;
+    try {
         connection = await mysql.createConnection(dbConfig);
-        const [rows] = await connection.execute('SELECT * FROM view_penjualan');
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Data satuan berhasil diambil',
-            data: rows
-        });
-    });
+        const query = `
+        SELECT DISTINCT 
+                vp.idpenjualan,
+                vp.tanggal_penjualan,
+                vp.subtotal_nilai,
+                vp.ppn,
+                vp.total_nilai,
+                vp.nama_user,
+                vp.margin_penjualan
+            FROM view_penjualan vp
+            ORDER BY vp.tanggal_penjualan DESC
+        `;
+        const [rows] = await connection.execute(query);
+        res.status(200).json({ status: 'success', data: rows });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
     app.get('/api/v1/penjualan/detail', async (req, res) => {
         let connection;
             connection = await mysql.createConnection(dbConfig);
@@ -905,6 +938,131 @@ app.get('/api/v1/kartu-stok/:idbarang', async (req, res) => {
         if (connection) await connection.end();
     }
 });
+
+
+app.get('/api/v1/pengadaan/:id', async (req, res) => {
+    let connection;
+    try {
+        const { id } = req.params;
+        connection = await mysql.createConnection(dbConfig);
+        
+        const query = `
+            SELECT DISTINCT
+                vp.idpengadaan, 
+                vp.tanggal_pengadaan, 
+                vp.nama_user, 
+                vp.nama_vendor, 
+                vp.subtotal_nilai, 
+                vp.ppn, 
+                vp.total_nilai, 
+                vp.status,
+                (SELECT COUNT(idpenerimaan) FROM penerimaan WHERE idpengadaan = vp.idpengadaan) AS is_received
+            FROM view_pengadaan vp
+            WHERE vp.idpengadaan = ?
+        `;
+
+        const [rows] = await connection.execute(query, [id]);
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ status: 'fail', message: 'Pengadaan tidak ditemukan' });
+        }
+        res.status(200).json({ status: 'success', data: rows[0] });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+app.get('/api/v1/pengadaan/:id/items', async (req, res) => {
+    let connection;
+    try {
+        const { id } = req.params;
+        connection = await mysql.createConnection(dbConfig);
+        // Ambil detail barangnya saja berdasarkan idpengadaan
+        const [rows] = await connection.execute(
+            'SELECT * FROM view_detail_pengadaan WHERE idpengadaan = ?',
+            [id]
+        );
+        res.status(200).json({ status: 'success', data: rows });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+app.get('/api/v1/penerimaan/:id', async (req, res) => {
+    let connection;
+    try {
+        const { id } = req.params;
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute(
+            'SELECT DISTINCT * FROM view_penerimaan WHERE idpenerimaan = ?',
+            [id]
+        );
+        if (rows.length === 0) return res.status(404).json({ status: 'fail', message: 'Data tidak ditemukan' });
+        res.status(200).json({ status: 'success', data: rows[0] });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+app.get('/api/v1/penerimaan/:id/items', async (req, res) => {
+    let connection;
+    try {
+        const { id } = req.params;
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute(
+            'SELECT * FROM view_detail_penerimaan WHERE idpenerimaan = ?',
+            [id]
+        );
+        res.status(200).json({ status: 'success', data: rows });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+
+app.get('/api/v1/penjualan/:id', async (req, res) => {
+    let connection;
+    try {
+        const { id } = req.params;
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute(
+            'SELECT DISTINCT * FROM view_penjualan WHERE idpenjualan = ?',
+            [id]
+        );
+        if (rows.length === 0) return res.status(404).json({ status: 'fail', message: 'Data tidak ditemukan' });
+        res.status(200).json({ status: 'success', data: rows[0] });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+app.get('/api/v1/penjualan/:id/items', async (req, res) => {
+    let connection;
+    try {
+        const { id } = req.params;
+        connection = await mysql.createConnection(dbConfig);
+        const [rows] = await connection.execute(
+            'SELECT * FROM view_detail_penjualan WHERE idpenjualan = ?',
+            [id]
+        );
+        res.status(200).json({ status: 'success', data: rows });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
 
 app.listen(port, () => {
     console.log(`Node.js API server berjalan di http://localhost:${port}`);

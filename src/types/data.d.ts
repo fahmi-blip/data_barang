@@ -68,8 +68,8 @@ export interface ViewPenerimaan {
     status: string; // CHAR(1) - default '1'
     idpengadaan: number | null; // INT
     nama_vendor: string; // Untuk display
-    nama_user: string; // Untuk display
-    pengadaan?: Pengadaan; // Untuk mendapatkan data pengadaan
+    nama_user: string; 
+    pengadaan?: Pengadaan; 
     details?: DetailPenerimaan[];
 }
 

@@ -32,15 +32,10 @@ interface DetailItem {
     sub_total_terima: number;
 }
 
-// Key untuk Local Storage
 const STORAGE_KEY = "penerimaan_draft";
 
 export default function TambahPenerimaanPage() {
     const navigate = useNavigate();
-
-    // --- State ---
-    
-    // 1. Load Draft dari Local Storage saat inisialisasi
     const loadDraft = () => {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
@@ -54,30 +49,19 @@ export default function TambahPenerimaanPage() {
     };
 
     const initialDraft = loadDraft();
-
     const [idPengadaan, setIdPengadaan] = useState<string>(initialDraft.idPengadaan);
     const [detailItems, setDetailItems] = useState<DetailItem[]>(initialDraft.detailItems);
-    
-    // State Data Master
     const [pengadaanOptions, setPengadaanOptions] = useState<SelectOption[]>([]);
     const [barangOptions, setBarangOptions] = useState<SelectOption[]>([]);
     const [barangList, setBarangList] = useState<ViewBarangAktif[]>([]);
-    
-    // State Data Referensi (Detail Pengadaan untuk Validasi)
     const [refDetailPengadaan, setRefDetailPengadaan] = useState<ViewDetailPengadaan[]>([]);
-    
-    // State Form Input
     const [selectedBarang, setSelectedBarang] = useState('');
     const [jumlahTerima, setJumlahTerima] = useState<number>(0);
     const [hargaSatuan, setHargaSatuan] = useState<number>(0);
-    
     const [loading, setLoading] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // --- Effects ---
-
-    // 2. Auto-Save ke Local Storage setiap ada perubahan data
     useEffect(() => {
         const dataToSave = {
             idPengadaan,
@@ -86,7 +70,6 @@ export default function TambahPenerimaanPage() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
     }, [idPengadaan, detailItems]);
 
-    // Load Initial Data (Master)
     useEffect(() => {
         const loadInitialData = async () => {
             setLoadingData(true);
@@ -107,14 +90,13 @@ export default function TambahPenerimaanPage() {
                     });
                 };
                 const pengadaanOpts = pengadaans
-                    .filter(p => Number(p.status) === 1 && !p.is_received) // UPDATE: Filter yang belum diterima
+                    .filter(p => Number(p.status) === 1 && !p.is_received) 
                     .map(p => ({
                         value: String(p.idpengadaan),
                         label: `ID: ${p.idpengadaan} - ${p.nama_vendor} (${formatDate(p.tanggal_pengadaan)})`
                     }));
                 setPengadaanOptions(pengadaanOpts);
 
-                // Simpan semua detail pengadaan untuk referensi validasi nanti
                 setRefDetailPengadaan(allDetails);
 
                 const barangOpts = barangs.map(b => ({
@@ -133,7 +115,6 @@ export default function TambahPenerimaanPage() {
         loadInitialData();
     }, []);
 
-    // Auto-fill harga saat barang dipilih
     useEffect(() => {
         if (selectedBarang) {
             const barang = barangList.find(b => String(b.idbarang) === selectedBarang);
@@ -143,15 +124,11 @@ export default function TambahPenerimaanPage() {
         }
     }, [selectedBarang, barangList]);
 
-    // --- Helpers & Logic ---
-
-    // Ambil detail target berdasarkan Pengadaan yang dipilih
     const targetItems = useMemo(() => {
         if (!idPengadaan) return [];
         return refDetailPengadaan.filter(d => String(d.idpengadaan) === idPengadaan);
     }, [idPengadaan, refDetailPengadaan]);
 
-    // Cek apakah item yang diterima sudah sesuai dengan pengadaan
     const validatePenerimaan = () => {
         if (targetItems.length === 0) return { valid: false, message: "Data detail pengadaan tidak ditemukan." };
 
@@ -185,16 +162,13 @@ export default function TambahPenerimaanPage() {
         const barang = barangList.find(b => String(b.idbarang) === selectedBarang);
         if (!barang) return setError("Barang tidak ditemukan!");
 
-        // Validasi: Apakah barang ini ada di Pengadaan yang dipilih?
         if (idPengadaan) {
             const isInOrder = targetItems.find(t => t.nama_barang === barang.nama);
             if (!isInOrder) {
-                // Optional: Block user atau sekedar warning
                 if(!confirm(`Peringatan: Barang "${barang.nama}" sepertinya tidak ada dalam detail Pengadaan ID ${idPengadaan}. Lanjutkan?`)) {
                     return;
                 }
             } else {
-                // Cek jumlah over
                 const currentQty = isInOrder.jumlah;
                 if (jumlahTerima > currentQty) {
                      if(!confirm(`Peringatan: Jumlah terima (${jumlahTerima}) melebihi jumlah pesan (${currentQty}) untuk "${barang.nama}". Lanjutkan?`)) {
@@ -229,7 +203,6 @@ export default function TambahPenerimaanPage() {
 
         setDetailItems([...detailItems, newItem]);
         
-        // Reset input kecil
         setSelectedBarang('');
         setJumlahTerima(0);
         setError(null);
@@ -266,8 +239,6 @@ export default function TambahPenerimaanPage() {
             setLoading(false);
             return;
         }
-
-        // VALIDASI FINAL "Sesuai Banyak Pengadaan"
         const validation = validatePenerimaan();
         if (!validation.valid) {
             setError("Gagal Simpan: " + validation.message);

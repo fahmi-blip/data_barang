@@ -1,5 +1,3 @@
-// src/services/DataMasterServices.ts - Service untuk mengambil data dari Node.js API
-
 import { ViewBarang, ViewBarangAktif, ViewPengadaan, ViewPenerimaan, ViewPenjualan,
      Role, User, ViewDetailPengadaan, MarginPenjualan, MarginPenjualanAktif,
      ViewDetailPenerimaan, ViewDetailPenjualan,
@@ -38,9 +36,6 @@ async function handleResponse<T>(response: Response): Promise<T> {
     return responseBody.data || responseBody as T || null as T;
 }
 
-// ===================================
-// BARANG SERVICES
-// ===================================
 
 export async function fetchBarangAllData(): Promise<ViewBarang[]> {
     const response = await fetch(`${API_BASE_URL}/barang/all`);
@@ -90,9 +85,6 @@ export async function deleteBarangData(id: number): Promise<void> {
     await handleResponse<void>(response);
 }
 
-// ===================================
-// SATUAN SERVICES
-// ===================================
 
 export async function fetchSatuanData(): Promise<Satuan[]> {
     const response = await fetch(`${API_BASE_URL}/satuan/all`);
@@ -169,9 +161,6 @@ export async function fetchVendorDataAktif(): Promise<VendorAktif[]> {
     }));
 }
 
-// ===================================
-// OTHER SERVICES (unchanged)
-// ===================================
 
 export async function fetchPengadaanData(): Promise<ViewPengadaan[]> {
     const response = await fetch(`${API_BASE_URL}/pengadaan`);
@@ -312,4 +301,32 @@ export async function fetchKartuStokData(): Promise<KartuStok[]> {
 export async function fetchKartuStokByBarang(idbarang: number): Promise<KartuStok[]> {
     const response = await fetch(`${API_BASE_URL}/kartu-stok/${idbarang}`);
     return handleResponse<KartuStok[]>(response);
+}
+export async function fetchPengadaanById(id: string): Promise<ViewPengadaan> {
+    const response = await fetch(`${API_BASE_URL}/pengadaan/${id}`);
+    return handleResponse<ViewPengadaan>(response);
+}
+export async function fetchPengadaanItems(id: string): Promise<ViewDetailPengadaan[]> {
+    const response = await fetch(`${API_BASE_URL}/pengadaan/${id}/items`);
+    return handleResponse<ViewDetailPengadaan[]>(response);
+}
+
+
+export async function fetchPenerimaanItems(id: string): Promise<ViewDetailPenerimaan[]> {
+    const response = await fetch(`${API_BASE_URL}/penerimaan/${id}/items`);
+    return handleResponse<ViewDetailPenerimaan[]>(response);
+}
+export async function fetchPenerimaanById(id: string): Promise<ViewPenerimaan> {
+    const response = await fetch(`${API_BASE_URL}/penerimaan/${id}`);
+    return handleResponse<ViewPenerimaan>(response);
+}
+
+
+export async function fetchPenjualanItems(id: string): Promise<ViewDetailPenjualan[]> {
+    const response = await fetch(`${API_BASE_URL}/penjualan/${id}/items`);
+    return handleResponse<ViewDetailPenjualan[]>(response);
+}
+export async function fetchPenjualanById(id: string): Promise<ViewPenjualan> {
+    const response = await fetch(`${API_BASE_URL}/penjualan/${id}`);
+    return handleResponse<ViewPenjualan>(response);
 }

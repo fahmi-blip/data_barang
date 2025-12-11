@@ -1,4 +1,3 @@
-// src/pages/Penjualan/TambahPengadaan.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
@@ -21,7 +20,7 @@ interface SelectOption {
 }
 
 interface DetailItem {
-    id: string; // temporary ID untuk React key
+    id: string; 
     idbarang: number;
     nama_barang: string;
     harga_satuan: number;
@@ -30,31 +29,20 @@ interface DetailItem {
 }
 
 export default function TambahPengadaanPage() {
-    // State untuk Header Pengadaan
     const [idVendor, setIdVendor] = useState('');
-    const [ppn, setPpn] = useState(10); // Default PPN 11%
-    
-    // State untuk Detail Items
+    const [ppn, setPpn] = useState(10); 
     const [detailItems, setDetailItems] = useState<DetailItem[]>([]);
-    
-    // State untuk Form Input Detail Baru
     const [selectedBarang, setSelectedBarang] = useState('');
     const [jumlah, setJumlah] = useState<number>(0);
     const [hargaSatuan, setHargaSatuan] = useState<number>(0);
-    
-    // State untuk Dropdown Options
     const [vendorOptions, setVendorOptions] = useState<SelectOption[]>([]);
     const [barangOptions, setBarangOptions] = useState<SelectOption[]>([]);
     const [barangList, setBarangList] = useState<ViewBarangAktif[]>([]);
-    
-    // State untuk Loading dan Error
     const [loading, setLoading] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
     const [error, setError] = useState<string | null>(null);
     
     const navigate = useNavigate();
-
-    // Load data vendor dan barang saat component mount
     useEffect(() => {
         const loadInitialData = async () => {
             setLoadingData(true);
@@ -64,13 +52,11 @@ export default function TambahPengadaanPage() {
                     fetchBarangActiveData()
                 ]);
 
-                // Set vendor options
                 const vendorOpts = vendors
                     .filter(v => Number(v.status) === 1)
                     .map(v => ({ value: String(v.idvendor), label: v.nama_vendor }));
                 setVendorOptions(vendorOpts);
 
-                // Set barang options
                 const barangOpts = barangs.map(b => ({
                     value: String(b.idbarang),
                     label: `${b.nama} (${b.nama_satuan})`
@@ -87,7 +73,6 @@ export default function TambahPengadaanPage() {
         loadInitialData();
     }, []);
 
-    // Hitung subtotal otomatis saat barang dipilih
     useEffect(() => {
         if (selectedBarang) {
             const barang = barangList.find(b => String(b.idbarang) === selectedBarang);
@@ -97,7 +82,6 @@ export default function TambahPengadaanPage() {
         }
     }, [selectedBarang, barangList]);
 
-    // Handler untuk menambah item ke tabel detail
     const handleAddItem = () => {
         if (!selectedBarang) {
             setError("Pilih barang terlebih dahulu!");
@@ -129,19 +113,16 @@ export default function TambahPengadaanPage() {
 
         setDetailItems([...detailItems, newItem]);
         
-        // Reset form input detail
         setSelectedBarang('');
         setJumlah(0);
         setHargaSatuan(0);
         setError(null);
     };
 
-    // Handler untuk menghapus item dari tabel
     const handleRemoveItem = (id: string) => {
         setDetailItems(detailItems.filter(item => item.id !== id));
     };
 
-    // Hitung total
     const calculateSubtotal = () => {
         return detailItems.reduce((sum, item) => sum + item.sub_total, 0);
     };
@@ -154,7 +135,6 @@ export default function TambahPengadaanPage() {
         return calculateSubtotal() + calculatePPN();
     };
 
-    // Handler submit form
     const handleSubmit = async () => {
     setLoading(true);
     setError(null);
@@ -171,13 +151,11 @@ export default function TambahPengadaanPage() {
         return;
     }
 
-    // Hitung nilai-nilai
     const subtotal = calculateSubtotal();
     const ppnValue = (subtotal * ppn) / 100;
 
-    // Siapkan data untuk dikirim ke backend
     const dataToSend = {
-        user_id: 1, // GANTI dengan ID user yang sedang login
+        user_id: 1, 
         vendor_id: parseInt(idVendor),
         subtotal_nilai: subtotal,
         ppn: ppnValue,
@@ -236,7 +214,6 @@ export default function TambahPengadaanPage() {
             <PageBreadcrumb pageTitle="Tambah Pengadaan Baru" />
             
             <div className="space-y-6">
-                {/* Form Header Pengadaan */}
                 <ComponentCard title="Informasi Pengadaan">
                     <div className="space-y-4">
                         <div>
@@ -267,7 +244,6 @@ export default function TambahPengadaanPage() {
                     </div>
                 </ComponentCard>
 
-                {/* Form Input Detail Barang */}
                 <ComponentCard title="Tambah Item Barang">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
@@ -322,7 +298,6 @@ export default function TambahPengadaanPage() {
                     </div>
                 </ComponentCard>
 
-                {/* Tabel Detail Items */}
                 <ComponentCard title="Daftar Barang">
                     {detailItems.length === 0 ? (
                         <p className="text-center py-10 text-gray-500 dark:text-gray-400">
@@ -371,7 +346,6 @@ export default function TambahPengadaanPage() {
                     )}
                 </ComponentCard>
 
-                {/* Summary & Submit */}
                 <ComponentCard title="Ringkasan">
                     <div className="space-y-3">
                         <div className="flex justify-between text-sm">

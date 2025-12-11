@@ -23,7 +23,7 @@ export default function UserPage() {
     setError(null);
     try {
       const data = await fetchUserData();
-       console.log("🔍 Data dari API:", data); // Memanggil fungsi fetch Satuan
+       console.log("🔍 Data dari API:", data); 
       setUserList(data);
     } catch (err: any) {
       const errorMessage = err.message || "Terjadi kesalahan yang tidak diketahui.";

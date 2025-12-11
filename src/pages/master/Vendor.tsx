@@ -9,7 +9,6 @@ import Badge from "../../components/ui/badge/Badge";
 import Button from "../../components/ui/button/Button";
 import { PlusIcon } from "../../icons"; 
 import { PencilIcon, TrashBinIcon } from "../../icons";
-// Import tipe data dan service
 import { Vendor, VendorAktif,StatusToko,BadanHukum } from "../../types/data.d";
 import { fetchVendorData, fetchVendorDataAktif} from "../../services/DataMasterServices"; // Menggunakan fungsi baru
 
@@ -145,7 +144,7 @@ const toggleFilter = () => {
                               <Button
                                   size="sm"
                                   variant="outline"
-                                  className="text-xs !p-1.5" // Ukuran lebih kecil
+                                  className="text-xs !p-1.5" 
                                   // onClick={() => handleEditClick(item.idbarang)}
                               >
                                    <PencilIcon className="size-4"/>

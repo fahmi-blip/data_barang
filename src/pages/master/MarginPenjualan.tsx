@@ -99,7 +99,7 @@ const formatDate = (dateString: string) => {
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
               <div className="max-w-full overflow-x-auto">
                 <Table className="w-full">
-                  <TableHeader className="border-b border-gray-100 bg-white dark:border-white/[0.05] dark:bg-gray-800">
+                  <TableHeader className="border-b border-gray-100 bg-gray-50 dark:border-white/[0.05] dark:bg-gray-800">
                     {filter == "all" ? (
                     <TableRow>
                       <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">ID Margin</TableCell>

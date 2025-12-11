@@ -22,7 +22,7 @@ export default function RolePage() {
     setError(null);
     try {
       const data = await fetchRoleData();
-       console.log("🔍 Data dari API:", data); // Memanggil fungsi fetch Satuan
+       console.log("🔍 Data dari API:", data); 
       setRoleList(data);
     } catch (err: any) {
       const errorMessage = err.message || "Terjadi kesalahan yang tidak diketahui.";

@@ -1,19 +1,16 @@
-// src/pages/Laporan/KartuStok.tsx
 import { useState, useEffect } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
 import Select from "../../components/form/Select";
 import PageMeta from "../../components/common/PageMeta";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
-import Badge from "../../components/ui/badge/Badge"; // Pastikan component Badge ada atau gunakan span biasa
-
+import Badge from "../../components/ui/badge/Badge"; 
 import { 
     fetchBarangActiveData, 
     fetchKartuStokByBarang 
 } from "../../services/DataMasterServices";
 import { ViewBarangAktif, ViewKartuStok } from "../../types/data";
 
-// Interface sesuaikan dengan response API jika berbeda
 interface KartuStokItem {
     idkartu_stok: number;
     jenis_transaksi: string;
@@ -110,7 +107,7 @@ export default function KartuStokPage() {
             <PageBreadcrumb pageTitle="Kartu Stok Barang" />
 
             <div className="space-y-6">
-                {/* Card Filter */}
+                
                 <ComponentCard title="Filter Barang">
                     <div className="max-w-lg">
                         <label className="mb-2.5 block text-sm font-medium text-gray-700 dark:text-white">
@@ -130,7 +127,6 @@ export default function KartuStokPage() {
                     </div>
                 </ComponentCard>
 
-                {/* Card Tabel Data */}
                 <ComponentCard title={selectedBarang ? "Riwayat Transaksi" : "Data Kosong"}>
                     {error && (
                         <div className="mb-4 p-4 bg-error-50 border border-error-300 rounded-lg text-error-700 text-sm">
@@ -155,31 +151,31 @@ export default function KartuStokPage() {
                     ) : (
                         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                             <Table className="w-full">
-                                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50/50 dark:bg-white/5">
+                                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-50 dark:bg-white[0.03]">
                                     <TableRow>
-                                        <TableCell isHeader className="px-5 py-3 font-semibold">Tanggal</TableCell>
-                                        <TableCell isHeader className="px-5 py-3 font-semibold">Jenis Transaksi</TableCell>
-                                        <TableCell isHeader className="px-5 py-3 text-right font-semibold text-success-600">Masuk</TableCell>
-                                        <TableCell isHeader className="px-5 py-3 text-right font-semibold text-error-600">Keluar</TableCell>
-                                        <TableCell isHeader className="px-5 py-3 text-right font-semibold">Sisa Stok</TableCell>
+                                        <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-white">Tanggal</TableCell>
+                                        <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-white">Jenis Transaksi</TableCell>
+                                        <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium  dark:text-white text-success-600">Masuk</TableCell>
+                                        <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium  dark:text-white text-error-600">Keluar</TableCell>
+                                        <TableCell isHeader className="px-5 py-3 text-xs uppercase font-medium text-gray-500 dark:text-white">Sisa Stok</TableCell>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                                     {kartuStokData.map((item, index) => (
                                         <TableRow key={index} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                                            <TableCell className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
+                                            <TableCell className="px-5 py-4 text-sm text-center text-gray-600 dark:text-gray-300">
                                                 {formatDate(item.created_at)}
                                             </TableCell>
-                                            <TableCell className="px-5 py-4">
+                                            <TableCell className="px-5 py-4  text-center text-sm font-medium">
                                                 {getTransactionBadge(item.jenis_transaksi)}
                                                </TableCell>
-                                            <TableCell className="px-5 py-4 text-right font-medium text-success-600">
+                                            <TableCell className="px-5 py-4 text-center font-medium text-sm text-success-600">
                                                 {item.masuk > 0 ? `+${item.masuk}` : '-'}
                                             </TableCell>
-                                            <TableCell className="px-5 py-4 text-right font-medium text-error-600">
+                                            <TableCell className="px-5 py-4 text-center font-medium text-sm text-error-600">
                                                 {item.keluar > 0 ? `-${item.keluar}` : '-'}
                                             </TableCell>
-                                            <TableCell className="px-5 py-4 text-right font-bold text-brand-600 dark:text-brand-400 bg-gray-50/30 dark:bg-white/5">
+                                            <TableCell className="px-5 py-4 text-center text-sm font-bold text-brand-600 dark:text-brand-400 bg-gray-50/30 dark:bg-white/5">
                                                 {item.stock}
                                             </TableCell>
                                         </TableRow>

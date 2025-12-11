@@ -30,13 +30,11 @@ interface DetailItem {
     harga_beli: number;
 }
 
-// Key untuk Local Storage
 const STORAGE_KEY = "penjualan_draft";
 
 export default function TambahPenjualanPage() {
     const navigate = useNavigate();
     
-    // --- Logic Load Draft ---
     const loadDraft = () => {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
@@ -50,24 +48,16 @@ export default function TambahPenjualanPage() {
     };
 
     const initialDraft = loadDraft();
-
-    // State
     const [idMargin, setIdMargin] = useState<string>(initialDraft.idMargin);
     const [persenMargin, setPersenMargin] = useState<number>(initialDraft.persenMargin);
-    const [details, setDetails] = useState<DetailItem[]>(initialDraft.details);
-    
+    const [details, setDetails] = useState<DetailItem[]>(initialDraft.details);    
     const [marginOptions, setMarginOptions] = useState<SelectOption[]>([]);
     const [barangOptions, setBarangOptions] = useState<SelectOption[]>([]);
-    
     const [selectedBarang, setSelectedBarang] = useState('');
     const [jumlah, setJumlah] = useState(0);
-    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // --- Effects ---
-
-    // 1. Auto-Save ke Local Storage
     useEffect(() => {
         const dataToSave = {
             idMargin,
@@ -77,7 +67,6 @@ export default function TambahPenjualanPage() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
     }, [idMargin, persenMargin, details]);
 
-    // 2. Load Data Master
     useEffect(() => {
         const loadOptions = async () => {
             try {
@@ -102,7 +91,6 @@ export default function TambahPenjualanPage() {
         loadOptions();
     }, []);
 
-    // 3. Update persentase margin
     useEffect(() => {
         const fetchMarginPersen = async () => {
             if (!idMargin) return;
@@ -119,8 +107,7 @@ export default function TambahPenjualanPage() {
         fetchMarginPersen();
     }, [idMargin]);
 
-    // --- Handlers ---
-
+    
     const handleClearDraft = () => {
         if (confirm("Apakah Anda yakin ingin menghapus seluruh draft penjualan ini?")) {
             setDetails([]);
@@ -136,7 +123,6 @@ export default function TambahPenjualanPage() {
             return;
         }
 
-        // Cek duplikasi
         const existingItemIndex = details.findIndex(d => d.idbarang === parseInt(selectedBarang));
         if (existingItemIndex >= 0) {
             if (confirm("Barang ini sudah ada di daftar. Apakah ingin menambahkan jumlahnya?")) {
@@ -214,7 +200,7 @@ export default function TambahPenjualanPage() {
         
         try {
             const dataToSubmit: NewPenjualanData = {
-                iduser: 1, // PERHATIAN: Pastikan User ID 1 ada di database Anda
+                iduser: 1, 
                 idmargin_penjualan: parseInt(idMargin),
                 details: details.map(d => ({
                     idbarang: d.idbarang,
@@ -229,7 +215,7 @@ export default function TambahPenjualanPage() {
             localStorage.removeItem(STORAGE_KEY);
             navigate('/penjualan');
         } catch (err: any) {
-            console.error("Error Detail:", err); // Cek Console F12 jika gagal
+            console.error("Error Detail:", err);
             setError(err.message || "Gagal menyimpan data. Periksa koneksi atau data input.");
         } finally {
             setLoading(false);
