@@ -324,6 +324,13 @@ export default function TambahPenerimaanPage() {
                                 </ul>
                              </div>
                         )}
+                                <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400">
+                                    {targetItems.map((t, idx) => (
+                                        <li key={idx}>
+                                            {t.nama_barang}: <strong>{t.jumlah}</strong> unit
+                                        </li>
+                                    ))}
+                                </ul>
                     </div>
                 </ComponentCard>
 

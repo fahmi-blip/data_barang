@@ -23,7 +23,9 @@ export interface ViewBarangAktif {
   nama_satuan: string; // Hasil JOIN dari tabel satuan
   status: StatusToko;
   harga?: number;
+  stock: number;
 }
+
 
 
 export interface Satuan {
