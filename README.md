@@ -1,192 +1,101 @@
-# TailAdmin React - Free React Tailwind Admin Dashboard Template
+Data Barang - Sistem Manajemen Inventaris & Penjualan
+Data Barang adalah aplikasi sistem informasi manajemen inventaris dan penjualan berbasis web yang dikembangkan untuk memudahkan pengelolaan data barang, vendor, satuan, serta pencatatan transaksi pengadaan, penerimaan, dan penjualan barang.
 
-TailAdmin is a free and open-source admin dashboard template built on **React and Tailwind CSS**, providing developers
-with everything they need to create a comprehensive, data-driven back-end,
-dashboard, or admin panel solution for upcoming web projects.
+🚀 Fitur Utama
+Manajemen Data Master:
 
-With TailAdmin, you get access to all the necessary dashboard UI components, elements, and pages required to build a
-feature-rich and complete dashboard or admin panel. Whether you're building dashboard or admin panel for a complex web
-application or a simple website, TailAdmin is the perfect solution to help you get up and running quickly.
+Pengelolaan Barang: CRUD barang dengan sistem kategori dan satuan.
 
-![TailAdmin React.js Dashboard Preview](./banner.png)
+Pengelolaan Satuan: Pengaturan satuan ukuran barang (Unit).
 
-## Overview
+Pengelolaan Vendor: Manajemen data pemasok/supplier.
 
-TailAdmin provides essential UI components and layouts for building feature-rich, data-driven admin dashboards and
-control panels. It's built on:
+Pengelolaan Role & User: Kontrol akses dan manajemen pengguna sistem.
 
-- React 19
-- TypeScript
-- Tailwind CSS
+Margin Penjualan: Pengaturan margin keuntungan secara fleksibel.
 
-### Quick Links
+Transaksi:
 
-- [✨ Visit Website](https://tailadmin.com)
-- [📄 Documentation](https://tailadmin.com/docs)
-- [⬇️ Download](https://tailadmin.com/download)
-- [🖌️ Figma Design File (Community Edition)](https://www.figma.com/community/file/1214477970819985778)
-- [⚡ Get PRO Version](https://tailadmin.com/pricing)
+Pengadaan: Pencatatan pembelian/pengadaan barang dari vendor.
 
-### Demos
+Penerimaan: Pengelolaan barang masuk ke gudang.
 
-- [Free Version](https://free-react-demo.tailadmin.com/)
-- [Pro Version](https://react-demo.tailadmin.com)
+Penjualan: Sistem pencatatan transaksi penjualan kepada pelanggan.
 
-### Other Versions
+Kartu Stock: Pelacakan mutasi dan riwayat ketersediaan barang secara real-time.
 
-- [HTML Version](https://github.com/TailAdmin/tailadmin-free-tailwind-dashboard-template)
-- [Next.js Version](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
-- [Vue.js Version](https://github.com/TailAdmin/vue-tailwind-admin-dashboard)
+Dashboard & UI:
 
-## Installation
+Desain modern menggunakan Tailwind CSS.
 
-### Prerequisites
+Responsif dan mendukung Dark Mode.
 
-To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
+Visualisasi data menggunakan ApexCharts untuk ringkasan operasional.
 
-- Node.js 18.x or later (recommended to use Node.js 20.x or later)
+🛠️ Stack Teknologi
+Frontend
+Framework: React 19
 
-### Cloning the Repository
+Bahasa: TypeScript
 
-Clone the repository using the following command:
+Styling: Tailwind CSS (v4)
 
-```bash
-git clone https://github.com/TailAdmin/free-react-tailwind-admin-dashboard.git
-```
+Routing: React Router v7
 
-> Windows Users: place the repository near the root of your drive if you face issues while cloning.
+Charts: ApexCharts & React-ApexCharts
 
-1. Install dependencies:
+State/Form Management: Hooks & native React state
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+Backend
+Environment: Node.js (CommonJS)
 
-   > Use the `--legacy-peer-deps` flag, if you face issues while installing.
+Framework: Express.js
 
-2. Start the development server:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
+Database: MySQL
 
-## Components
+📋 Struktur Folder
+Plaintext
+src/
+├── backend/          # API Server (Express + MySQL)
+├── components/       # Komponen UI (Atomic Design)
+├── context/          # Global state (Sidebar & Theme)
+├── hooks/            # Custom React hooks
+├── layout/           # Wrapper layout aplikasi
+├── pages/            # Halaman aplikasi (Master, Penjualan, Dashboard)
+├── services/         # API Service untuk komunikasi frontend-backend
+└── types/            # Definisi tipe data TypeScript (db.d.ts, data.d.ts)
+⚙️ Cara Instalasi & Menjalankan Proyek
+Prerequisites
+Node.js 18.x atau 20.x ke atas.
 
-TailAdmin is a pre-designed starting point for building a web-based dashboard using React.js and Tailwind CSS. The
-template includes:
+Database MySQL yang sudah berjalan.
 
-- Sophisticated and accessible sidebar
-- Data visualization components
-- Prebuilt profile management and 404 page
-- Tables and Charts(Line and Bar)
-- Authentication forms and input elements
-- Alerts, Dropdowns, Modals, Buttons and more
-- Can't forget Dark Mode 🕶️
+Langkah-langkah
+Clone Repository:
 
-All components are built with React and styled using Tailwind CSS for easy customization.
+Bash
+git clone [URL_REPOSITORI_ANDA]
+cd data_barang
+Instalasi Dependensi:
 
-## Feature Comparison
+Bash
+npm install
+# Atau jika menggunakan yarn
+yarn install
+Konfigurasi Database:
 
-### Free Version
+Siapkan database MySQL Anda.
 
-- 1 Unique Dashboard
-- 30+ dashboard components
-- 50+ UI elements
-- Basic Figma design files
-- Community support
+Sesuaikan koneksi database di src/backend/server.js.
 
-### Pro Version
+Menjalankan Server:
 
-- 5 Unique Dashboards: Analytics, Ecommerce, Marketing, CRM, Stocks (more coming soon)
-- 400+ dashboard components and UI elements
-- Complete Figma design file
-- Email support
+Jalankan backend:
 
-To learn more about pro version features and pricing, visit our [pricing page](https://tailadmin.com/pricing).
+Bash
+node server.js
 
-## Changelog
+Jalankan frontend:
 
-### Version 2.0.2 - [March 25, 2025]
-
-- Upgraded to React 19
-- Included overrides for packages to prevent peer dependency errors.
-- Migrated from react-flatpickr to flatpickr package for React 19 support
-
-### Version 2.0.1 - [February 27, 2025]
-
-#### Update Overview
-
-- Upgraded to Tailwind CSS v4 for better performance and efficiency.
-- Updated class usage to match the latest syntax and features.
-- Replaced deprecated class and optimized styles.
-
-#### Next Steps
-
-- Run npm install or yarn install to update dependencies.
-- Check for any style changes or compatibility issues.
-- Refer to the Tailwind CSS v4 [Migration Guide](https://tailwindcss.com/docs/upgrade-guide) on this release. if needed.
-- This update keeps the project up to date with the latest Tailwind improvements. 🚀
-
-### Version 2.0.0 - [February 2025]
-
-A major update with comprehensive redesign and modern React patterns implementation.
-
-#### Major Improvements
-
-- Complete UI redesign with modern React patterns
-- New features: collapsible sidebar, chat, and calendar
-- Improved performance and accessibility
-- Updated data visualization using ApexCharts
-
-#### Key Features
-
-- Redesigned dashboards (Ecommerce, Analytics, Marketing, CRM)
-- Enhanced navigation with React Router integration
-- Advanced tables with sorting and filtering
-- Calendar with drag-and-drop support
-- New UI components and improved existing ones
-
-#### Breaking Changes
-
-- Updated sidebar component API
-- Migrated charts to ApexCharts
-- Revised authentication system
-
-[Read more](https://tailadmin.com/docs/update-logs/react) on this release.
-
-### Version 1.3.7 - [June 20, 2024]
-
-#### Enhancements
-
-1. Remove Repetition of DefaultLayout in every Pages
-2. Add ClickOutside Component for reduce repeated functionality in Header Message, Notification and User Dropdowns.
-
-### Version 1.3.6 - [Jan 31, 2024]
-
-#### Enhancements
-
-1. Integrate flatpickr in [Date Picker/Form Elements]
-2. Change color after select an option [Select Element/Form Elements].
-3. Make it functional [Multiselect Dropdown/Form Elements].
-4. Make best value editable [Pricing Table One/Pricing Table].
-5. Rearrange Folder structure.
-
-### Version 1.2.0 - [Apr 28, 2023]
-
-- Add Typescript in TailAdmin React.
-
-### Version 1.0.0 - Initial Release - [Mar 13, 2023]
-
-- Initial release of TailAdmin React.
-
-## License
-
-TailAdmin React.js Free Version is released under the MIT License.
-
-## Support
-
-If you find this project helpful, please consider giving it a star on GitHub. Your support helps us continue developing
-and maintaining this template.
+Bash
+npm run dev
